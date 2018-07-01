@@ -3,6 +3,10 @@ const flt_ZERO      = 1;    // +0.0 or -0.0
 const flt_INF       = 2;    // +inf or -inf
 const flt_NAN       = 3;    // nan
 
+const   mask_SIGN = 0x80000000;
+const   mask_EXPO = 0x7F800000;
+const   mask_MANT = 0x007FFFFF;
+
 function FloatOperate() {
     
     this._breakFloat = function(v) {
@@ -11,24 +15,24 @@ function FloatOperate() {
         let negative = s ? true : false;
         if(e == 0) { // Spe
         	if (m == 0) {
-        		e = flt_ZERO_ZERO;
+        		expo = flt_ZERO_ZERO;
         	} else {
-        		e = flt_ZERO;
+        		expo = flt_ZERO;
         	}
-        } else {    
-            if (m == 0) {
-            	e = -e; 
-            } else { // 通过移位调整
-            	for (let i=0; i< 52; i++) {
-    	            if (m % 1 ==0) {  // 当m的有效位数超出32位时采用此方式会有问题
-    	                break;
-    	            } else {
-    	                m = m * 2;
-    	                e--;
-    	            }
-    	        }
-            }
-            expo = e;
+        } else {
+        	expo = e;
+        }
+        if (m == 0) {
+        	expo = -expo;
+        } else { // 通过移位调整
+        	for (let i=0; i< 52; i++) {
+	            if (m % 1 ==0) {  // 当m的有效位数超出32位时采用此方式会有问题
+	                break;
+	            } else {
+	                m = m * 2;
+	                e--;
+	            }
+	        }
         }
         if (negative) {
             mantissa = -m;

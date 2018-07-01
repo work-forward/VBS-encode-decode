@@ -11,26 +11,7 @@ function VbsEncode() {
            }
            return this.bp;
     }
-    // this.packIntOrStringHead = function(kind, num, isE) {
-    //     var n = 0;
-    //     if(isE) {
-    //         let len = this.bp.length;
-    //         for (;num >= 0x20; n++) {
-    //             numByte = _getOneByte(num);
-    //             this.bp[n + len] = 0x80 | numByte;
-    //             num >>= 7;
-    //         }
-    //         this.bp[n + len] = kind | num;
-    //     } else {
-    //         for (;num >= 0x20; n++) {
-    //             numByte = _getOneByte(num);
 
-    //             this.bp[n] = 0x80 | numByte;
-    //             num >>= 7;
-    //         }
-    //         this.bp[n] = kind | num;
-    //     }
-    // }
     this.packIntOrStringHead = function(kind, num, isE) {
         var n = 0;
         if(isE) {
@@ -68,22 +49,9 @@ function VbsEncode() {
         return arr;
     }
 
-    // function _getOneByte(num) {
-    //     let numString = num.toString(2);
-    //     let len = numString.length;
-    //     let numLow;
-    //     // get 7 bit each time, unless it's not satisfy 7 bits
-    //     if (len >= 7) {
-    //         numLow = numString.slice(len -7,len);
-    //     } else {
-    //         numLow = numString.slice(0,len);
-    //     }
-    //     return parseInt(numLow, 2);
-    // }
-
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
-        if (mantissa < 0) {
+        if (mantissa < 0 | mantissa == -0) {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING, mantissa);
@@ -129,11 +97,11 @@ function myJsonStringify(jsonObj) {
         }
         switch (typeof jsonObj) {
             case 'number':
-                if (jsonObj % 1 == 0) {  // 大浮点数时会四舍五入判断为整数
-                    return vbsEncode.encodeInterger(jsonObj);
-                } else {
+                // if (jsonObj % 1 == 0) {  // 大浮点数时会四舍五入判断为整数
+                //     return vbsEncode.encodeInterger(jsonObj);
+                // } else {
                    return vbsEncode.encodeFloat(jsonObj);
-                }
+                // }
             case 'boolean':
                 return String(jsonObj);
             case 'string':
@@ -201,4 +169,10 @@ function testVbs() {
 	
 }
 testVbs()
+
+
+module.exports = {
+    myJsonStringify
+}
+
 
