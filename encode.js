@@ -3,7 +3,6 @@ const floatOperate =  require('./float.js');
 function VbsEncode() {
     VbsEncode.prototype.bp = [];
     this.encodeInterger = function(value, isE = false){  // isE: judge whether it is exponent
-        // bigInt use string to deal
         if (value < 0) {
                  this.packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER + 0x20, -value, isE); 
            } else {
@@ -152,28 +151,25 @@ function myJsonStringify(jsonObj) {
         }
 }
 
+module.exports = {
+    myJsonStringify
+}
 function testVbs() {
-    let u = 2 * Math.pow(2, 53);  // 判断是否是整数的问题
+    let u = -1.1;  // 判断是否是整数的问题
+    var myJson = myJsonStringify(u);
+    console.log(myJson)
     // for ( u = 10;u < 4334;) {
     //    var myJson = myJsonStringify(u);
     //    console.log(myJson)
     //    u += 50;
     // }
-    var myJson = myJsonStringify(u);
-    console.log(myJson, u)
 
     // for ( u = 10.5;u < 422333.4544545562189;) {
     //    var myJson = myJsonStringify(u);
     //    console.log(myJson)
     //    u += 100.6898;
     // }
-	
+    
 }
 testVbs()
-
-
-module.exports = {
-    myJsonStringify
-}
-
 
