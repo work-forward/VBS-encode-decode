@@ -1,5 +1,5 @@
-const flt_ZERO_ZERO = 0;    // 0.0
-const flt_ZERO      = 1;    // +0.0 or -0.0
+const flt_ZERO_ZERO = 0;    // 0.0 js不区分
+const flt_ZERO      = 1;    // +0.0 or -0.0  js不区分
 const flt_INF       = 2;    // +inf or -inf
 const flt_NAN       = 3;    // nan
 
@@ -9,27 +9,15 @@ function FloatOperate() {
         var expo, mantissa;
         let [s, e, m] = floatToNumber(v);
         let negative = s ? true : false;
-        if(e == 0) { // Spe
-        	if (m == 0) {
-        		e = flt_ZERO_ZERO;
-        	} else {
-        		e = flt_ZERO;
-        	}
-        } else {    
-            if (m == 0) {
-            	e = -e; 
-            } else { // 通过移位调整
-            	for (let i=0; i< 52; i++) {
-    	            if (m % 1 ==0) {  // 当m的有效位数超出32位时采用此方式会有问题
-    	                break;
-    	            } else {
-    	                m = m * 2;
-    	                e--;
-    	            }
-    	        }
-            }
-            expo = e;
-        }
+        for (let i=0; i< 52; i++) {
+	            if (m % 1 ==0) {  
+	                break;
+	            } else {
+	                m = m * 2;
+	                e--;
+	            }
+	     }
+    	expo = e;
         if (negative) {
             mantissa = -m;
         } else {
@@ -48,7 +36,7 @@ function FloatOperate() {
         var sign = (flt < 0) ? 1 : 0;
         flt = Math.abs(flt); 
         var exponent = Math.floor(Math.log(flt) / Math.LN2);
-        if (exponent > 127 || exponent < -126) // Special case: +-Infinity (and huge numbers)
+        if (exponent > 127 | exponent < -126) // Special case: +-Infinity (and huge numbers)
         	return assembleFloat(sign, flt_INF, 0); // Mantissa is zero for +-Infinity
         var mantissa = flt / Math.pow(2, exponent);
         return [sign, exponent, mantissa];

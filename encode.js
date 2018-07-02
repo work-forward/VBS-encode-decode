@@ -51,7 +51,7 @@ function VbsEncode() {
 
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
-        if (mantissa < 0 | mantissa == -0) {
+        if (mantissa < 0) {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING, mantissa);
@@ -97,11 +97,12 @@ function myJsonStringify(jsonObj) {
         }
         switch (typeof jsonObj) {
             case 'number':
-                // if (jsonObj % 1 == 0) {  // 大浮点数时会四舍五入判断为整数
-                //     return vbsEncode.encodeInterger(jsonObj);
-                // } else {
+                // big-float will be lost when store it. If the type of jsonObj is exceed 53, it express with float
+                if (jsonObj % 1 == 0 && jsonObj <= Math.pow(2, 53)) {  
+                    return vbsEncode.encodeInterger(jsonObj);
+                } else {
                    return vbsEncode.encodeFloat(jsonObj);
-                // }
+                }
             case 'boolean':
                 return String(jsonObj);
             case 'string':
@@ -152,14 +153,14 @@ function myJsonStringify(jsonObj) {
 }
 
 function testVbs() {
-    let u = -0.0;  // 判断是否是整数的问题
+    let u = 2 * Math.pow(2, 53);  // 判断是否是整数的问题
     // for ( u = 10;u < 4334;) {
     //    var myJson = myJsonStringify(u);
     //    console.log(myJson)
     //    u += 50;
     // }
     var myJson = myJsonStringify(u);
-    console.log(myJson)
+    console.log(myJson, u)
 
     // for ( u = 10.5;u < 422333.4544545562189;) {
     //    var myJson = myJsonStringify(u);
