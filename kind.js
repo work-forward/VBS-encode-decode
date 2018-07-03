@@ -1,3 +1,4 @@
+// identifier different type
 const vbsKind = {
 	VBS_TAIL: 0x01,
 	VBS_LIST: 0x02,
@@ -11,9 +12,9 @@ const vbsKind = {
 	VBS_STRING: 0x20,         // 001x xxxx
 	VBS_INTEGER: 0x40
 }
-// console.log(vbsKind)
+
 const VBS_DESCRIPTOR_MAX	= 0x7fff
-// console.log(VBS_DESCRIPTOR_MAX)
+
 const VBS_SPECIAL_DESCRIPTOR	= 0x8000
 
 var kindNames = [
@@ -45,7 +46,7 @@ function KindString(k) {
 	}
 	return kindNames[0];
 }
-// console.log(KindString(64))
+
 module.exports = {
 	vbsKind,
 	VBS_DESCRIPTOR_MAX,

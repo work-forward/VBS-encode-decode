@@ -36,7 +36,8 @@ function FloatOperate() {
         var sign = (flt < 0) ? 1 : 0;
         flt = Math.abs(flt); 
         var exponent = Math.floor(Math.log(flt) / Math.LN2);
-        if (exponent > 127 | exponent < -126) // Special case: +-Infinity (and huge numbers)
+        // 此处微调，原先：exponent > 127 | exponent < -126
+        if (exponent > 1023 | exponent < -1022) // Special case: +-Infinity (and huge numbers)
         	return assembleFloat(sign, flt_INF, 0); // Mantissa is zero for +-Infinity
         var mantissa = flt / Math.pow(2, exponent);
         return [sign, exponent, mantissa];
@@ -45,11 +46,10 @@ function FloatOperate() {
     this._makeFloat = function(mantissa, expo) {
         let num, negative = false;
         if (mantissa == 0) {
-        	if (expo< 0) {
+        	if (expo < 0) {
         		expo = -expo;
         		negative = true;
-        	}
-        	if (expo == flt_INF) {
+        	} else if (expo == flt_INF) {
         		if (negative) {
         			num = Number.POSITIVE_INFINITY;
         		} else {
@@ -63,15 +63,16 @@ function FloatOperate() {
         		mantissa = -mantissa;
         		negative = true;
         	}
-        	if (expo > 127 | expo < -126) { // Special case: +-Infinity
+        	if (expo > 1023 | expo < -1022) { // Special case: +-Infinity
         	   if (negative) {
         	   	 num = Number.NEGATIVE_INFINITY;
         	   } else {
         	   	 num = Number.POSITIVE_INFINITY;
         	   }
         	}
+
         	for (let i=0; i< 52; i++) {
-	            if (mantissa < 2 && mantissa % 1 != 0) {  
+	            if (mantissa < 2 && ((mantissa % 1 != 0) | mantissa == 1)) {  
 	                break;
 	            } else {
 	                mantissa = mantissa / 2;

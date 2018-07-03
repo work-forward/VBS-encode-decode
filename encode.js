@@ -14,14 +14,17 @@ function VbsEncode() {
 
     this.packIntOrStringHead = function(kind, num, isE) {
         var n = 0;
-        if(isE) {
-            let len = this.bp.length;
-            this.bp = _intShift(this.bp, n + len, kind, num);
-        } else {
-            this.bp = _intShift(this.bp, n, kind, num);
-        }
+        let len = this.bp.length;
+        this.bp = _intShift(this.bp, n + len, kind, num); 
+        // if(isE) {
+        //     let len = this.bp.length;
+        //     this.bp = _intShift(this.bp, n + len, kind, num); 
+        // } else {
+        //     console.log(this.bp.length)
+        //     this.bp = _intShift(this.bp, n, kind, num);
+        // }
     }
-
+    // splice num according to byte and  encode every byte
     function _intShift(bp = [], n, kind, num) {
         let numString = num.toString(2);
         let arr = [];
@@ -45,13 +48,13 @@ function VbsEncode() {
                 num >>= 7;
             }
         }
-        arr[n] = kind | num;
+        arr[n] = kind | num;  // operate (VBS_INTEGER | num[num.length - 1])
         return arr;
     }
 
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
-        // console.log(111, expo, mantissa)
+        // console.log(111, mantissa, expo)
         if (mantissa < 0) {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
@@ -62,16 +65,20 @@ function VbsEncode() {
     }
     this.packIntKind = function(kind, num) {
         let n = 0;
-        let numString = num.toString(2);
         this.bp = _floatShift(kind, num);
         n = this.bp.length;
-        this.bp[n] = kind;
+        this.bp[n] = kind; // encode identifier
     }
+    // splice num according to byte and  encode every byte
     function _floatShift(kind, num) {
         let numString = num.toString(2);
         let n = 0;
         let arr = [];
         let len = numString.length;
+        if (len == 1) {
+            arr[n] = 0x80 | num;
+            return arr;
+        }
         for(let i = 0;i < len;) {
             let numLow;
             if (len - i >= 7) {
@@ -82,13 +89,13 @@ function VbsEncode() {
                 numLow = numString.slice(0,len - i);
                 i += len - i;
                 arr[n] = 0x80 | parseInt(numLow, 2);
+
             }
             n++;
         }
         return arr;
     }
 }
-
 
 function myJsonStringify(jsonObj) {
         var vbsEncode = new VbsEncode();
@@ -161,30 +168,38 @@ function jsonVbsEncode(u) {
 module.exports = {
     jsonVbsEncode
 }
-// function testVbs() {
-//     let u;  // 判断是否是整数的问题 1.5, 1.25, 1.0
-//     var myJson = jsonVbsEncode(u);
-//     // console.log(u, myJson)
-//     var ss = vbsDecode.jsonVbsDecode(myJson);
-//     // console.log(ss)
-
-// }
+function testVbs() {
+    let u = -1.1;  // 判断是否是整数的问题 1.5, 1.25, 1.0
+    // let u = Math.pow(2, 1022) - 1  // 大数测试
+    // let u = NaN;
+    // let u = 0;
+    var myJson = jsonVbsEncode(u);
+    // console.log(myJson)
+    var ss = vbsDecode.jsonVbsDecode(myJson);
+    console.log(u, myJson, ss)
+}
 
 testVbs()
-function testVbs() {
-    for (let u = 10;u < 43355555675656565;) {
-       let myJson = myJsonStringify(u);
-       let ss = vbsDecode.jsonVbsDecode(myJson);
-       console.log(u, myJson, ss)
-       u *= 51;
-    } 
-    // for ( u = 10.5;u < 422333.4544545562189;) {
-    //    var myJson = myJsonStringify(u);
-    //    var ss = vbsDecode.jsonVbsDecode(myJson);
-    //    console.log(32322, u, ss)
-    //    u += 100.6898;
-    // }
+// function testVbs() {
+//     for (let u = 1;u < 50;) {
+//        let myJson = myJsonStringify(u);
+//        let ss = vbsDecode.jsonVbsDecode(myJson);
+//        console.log(u, myJson, ss)
+//        u += Math.random();
+//     } 
+//     // for (let u = 10;u < 433555556756565;) {
+//     //    let myJson = myJsonStringify(u);
+//     //    let ss = vbsDecode.jsonVbsDecode(myJson);
+//     //    console.log(u, myJson, ss)
+//     //    u *= 51;
+//     // } 
+//     // for ( u = 10.5;u < 428543.44189;) {
+//     //    var myJson = myJsonStringify(u);
+//     //    var ss = vbsDecode.jsonVbsDecode(myJson);
+//     //    console.log(u, myJson, ss)
+//     //    u += 100.6898;
+//     // }
     
-}
+// }
 
 

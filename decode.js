@@ -1,7 +1,7 @@
 const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
 function VbsDecode() {
-    this.decodeInterger = function(value, arr, negative = false, isE = false) {
+    this.decodeInterger = function(value, arr, negative = false) {
         return this.unpackInt(arr, negative);
     }
     this.unpackInt = function(v, negative) {
@@ -18,7 +18,7 @@ function VbsDecode() {
         for (let i = 0;i < n; i++) {
             if (i == n - 1) {
                 m = (v[i]  & 0x1F).toString(2);
-                if ((v & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
+                if ((v[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
                     m = '-' + m;
                 }
             } else {
@@ -41,10 +41,11 @@ function VbsDecode() {
         let mantissa = this.unpackFloat(arr, negative);
         // 根据value获取e的编码
         let arrReamin = this.getRemain(value, arr);
-        
-        let exponent = this.decodeInterger(value, arrReamin, true);
-        // console.log(222, exponent, mantissa)
+
+        let exponent = this.decodeInterger(value, arrReamin);
+
         let num = floatOperate.makeFloat(mantissa, exponent);
+        // console.log(222, mantissa, exponent)
         return num;
     }
     this.getRemain = function(arr1, arr2) { // get the e
