@@ -8,20 +8,21 @@ function VbsDecode() {
         let n = v.length;
         let m = '';
         let mon = '';
-        if (n == 1) {  // 标识位、数字位
+        // identifier、number 
+        if (n == 1) {   // Only one byte
             m = (v & 0x1F).toString(2);
-            if ((v & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
+            if ((v & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Pos number plus the symbol
                 m = '-' + m;
             }
             return parseInt(m, 2);
         }
-        for (let i = 0;i < n; i++) {
+        for (let i = 0;i < n; i++) { // mut byte splice v in order to get one byte every time
             if (i == n - 1) {
                 m = (v[i]  & 0x1F).toString(2);
                 if ((v[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
                     m = '-' + m;
                 }
-            } else {
+            } else {  // final one byte
                 m = (v[i] & 0x7F).toString(2);
                 if (m.length < 7 && i != n -1) {
                    m = padZero(m);
@@ -39,16 +40,16 @@ function VbsDecode() {
             return;
         }
         let mantissa = this.unpackFloat(arr, negative);
-        // 根据value获取e的编码
+       
         let arrReamin = this.getRemain(value, arr);
-
+         // get exponent  by value code
         let exponent = this.decodeInterger(value, arrReamin);
 
         let num = floatOperate.makeFloat(mantissa, exponent);
         // console.log(222, mantissa, exponent)
         return num;
     }
-    this.getRemain = function(arr1, arr2) { // get the e
+    this.getRemain = function(arr1, arr2) { // get the e code
         let arr = [];
         let len = arr1.length - arr2.length;
         for (let i=0; i < len; i++) {
@@ -63,7 +64,7 @@ function VbsDecode() {
         for (let i = 0;i < n - 1; i++) {
             m = (v[i] & 0x7F).toString(2);
             // console.log(1212, m, i)
-            if (m.length < 7 && i != n -2 && n != 1) {
+            if (m.length < 7 && i != n -2 && n != 1) { // less than 7 bit, pad the m with 0 to 7 bit
                m = padZero(m);
             }
             mon = m + mon;

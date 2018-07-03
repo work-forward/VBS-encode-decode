@@ -16,13 +16,6 @@ function VbsEncode() {
         var n = 0;
         let len = this.bp.length;
         this.bp = _intShift(this.bp, n + len, kind, num); 
-        // if(isE) {
-        //     let len = this.bp.length;
-        //     this.bp = _intShift(this.bp, n + len, kind, num); 
-        // } else {
-        //     console.log(this.bp.length)
-        //     this.bp = _intShift(this.bp, n, kind, num);
-        // }
     }
     // splice num according to byte and  encode every byte
     function _intShift(bp = [], n, kind, num) {
@@ -169,8 +162,8 @@ module.exports = {
     jsonVbsEncode
 }
 function testVbs() {
-    let u = -1.1;  // 判断是否是整数的问题 1.5, 1.25, 1.0
-    // let u = Math.pow(2, 1022) - 1  // 大数测试
+    let u = -1.1;  // small number test
+    // let u = Math.pow(2, 1022) - 1  // big number test
     // let u = NaN;
     // let u = 0;
     var myJson = jsonVbsEncode(u);
