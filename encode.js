@@ -1,5 +1,6 @@
 const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
+const vbsDecode = require('./decode.js');
 function VbsEncode() {
     VbsEncode.prototype.bp = [];
     this.encodeInterger = function(value, isE = false){  // isE: judge whether it is exponent
@@ -50,6 +51,7 @@ function VbsEncode() {
 
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
+        // console.log(111, expo, mantissa)
         if (mantissa < 0) {
               this.packIntKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
@@ -151,25 +153,38 @@ function myJsonStringify(jsonObj) {
         }
 }
 
-module.exports = {
-    myJsonStringify
+function jsonVbsEncode(u) {
+    var myJson = new myJsonStringify(u);
+    return JSON.stringify(myJson);
 }
-function testVbs() {
-    let u = -1.1;  // 判断是否是整数的问题
-    var myJson = myJsonStringify(u);
-    console.log(myJson)
-    // for ( u = 10;u < 4334;) {
-    //    var myJson = myJsonStringify(u);
-    //    console.log(myJson)
-    //    u += 50;
-    // }
 
+module.exports = {
+    jsonVbsEncode
+}
+// function testVbs() {
+//     let u;  // 判断是否是整数的问题 1.5, 1.25, 1.0
+//     var myJson = jsonVbsEncode(u);
+//     // console.log(u, myJson)
+//     var ss = vbsDecode.jsonVbsDecode(myJson);
+//     // console.log(ss)
+
+// }
+
+testVbs()
+function testVbs() {
+    for (let u = 10;u < 43355555675656565;) {
+       let myJson = myJsonStringify(u);
+       let ss = vbsDecode.jsonVbsDecode(myJson);
+       console.log(u, myJson, ss)
+       u *= 51;
+    } 
     // for ( u = 10.5;u < 422333.4544545562189;) {
     //    var myJson = myJsonStringify(u);
-    //    console.log(myJson)
+    //    var ss = vbsDecode.jsonVbsDecode(myJson);
+    //    console.log(32322, u, ss)
     //    u += 100.6898;
     // }
     
 }
-testVbs()
+
 

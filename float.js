@@ -41,12 +41,61 @@ function FloatOperate() {
         var mantissa = flt / Math.pow(2, exponent);
         return [sign, exponent, mantissa];
     }
+
+    this._makeFloat = function(mantissa, expo) {
+        let num, negative = false;
+        if (mantissa == 0) {
+        	if (expo< 0) {
+        		expo = -expo;
+        		negative = true;
+        	}
+        	if (expo == flt_INF) {
+        		if (negative) {
+        			num = Number.POSITIVE_INFINITY;
+        		} else {
+        			num = Number.NEGATIVE_INFINITY;
+        		} 
+        	} else {
+        		num = Number.NaN;
+        	}
+        } else {
+        	if (mantissa < 0) {
+        		mantissa = -mantissa;
+        		negative = true;
+        	}
+        	if (expo > 127 | expo < -126) { // Special case: +-Infinity
+        	   if (negative) {
+        	   	 num = Number.NEGATIVE_INFINITY;
+        	   } else {
+        	   	 num = Number.POSITIVE_INFINITY;
+        	   }
+        	}
+        	for (let i=0; i< 52; i++) {
+	            if (mantissa < 2 && mantissa % 1 != 0) {  
+	                break;
+	            } else {
+	                mantissa = mantissa / 2;
+	                expo++;
+	            }
+	    	 }
+	    	num = mantissa * Math.pow(2, expo);
+	    	if (negative) {
+	    		num = -num;
+	    	}
+        }
+        return num;
+    }
 }
 function breakFloat(v) {
     return new FloatOperate()._breakFloat(v);
 }
 
+function makeFloat(mantissa, expo) {
+	return new FloatOperate()._makeFloat(mantissa, expo);
+}
+
 module.exports = {
-    breakFloat
+    breakFloat,
+    makeFloat
 }
 
