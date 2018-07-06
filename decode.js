@@ -53,7 +53,8 @@ function VbsDecode() {
         // console.log(222, mantissa, arrReamin)
         return num;
     }
-    this.getRemain = function(arr1, arr2) { // get arr1 - arr2
+    // get arr1 - arr2
+    this.getRemain = function(arr1, arr2) { 
         let arr = [];
         let len = arr1.length - arr2.length;
         for (let i=0; i < len; i++) {
@@ -67,7 +68,6 @@ function VbsDecode() {
         let mon = '';
         for (let i = 0;i < n - 1; i++) {
             m = (v[i] & 0x7F).toString(2);
-            // console.log(1212, m, i)
             if (m.length < 7 && i != n -2 && n != 1) { // less than 7 bit, pad the m with 0 to 7 bit
                m = padZero(m);
             }
@@ -78,6 +78,7 @@ function VbsDecode() {
         }
         return parseInt(mon, 2);
     }
+    // decode blob. 
     // if length of value is accuracy, return the blob data
     this.decodeBlob = function(value, arr) { 
         let len = this.decodeInterger(value, arr);
@@ -85,7 +86,7 @@ function VbsDecode() {
             return;
         }
         
-        let arrRemain = this.getRemain(value, arr);
+        let arrRemain = this.getRemain(value, arr); // get value - arr
 
         if(len != arrRemain.length) {
             return;
@@ -93,11 +94,11 @@ function VbsDecode() {
         let data = new Uint8Array(arrRemain); 
         return data;
     }
-    // if it is bool, return type
+    // decode bool. if it is bool, return type
     this.decodeBool = function(value, type) {
         return type;
     }
-
+    // decode string
     this.decodeString = function(value, arr) {
         let len = this.decodeInterger(value, arr);
 
@@ -109,49 +110,107 @@ function VbsDecode() {
         let str = commonFun.byteToString(arrRemain);
         return str;
     }
-    this.decodeDescriptor = function(value, arr) {
-        // special descripe code
+    // special descripe decode
+    this.decodeDescriptor = function(value, arr) {        
         return this.decodeInterger(value, arr);
     }
+     // decode array
     this.decodeArray = function(value, arr) {
-        // variety 不为空
-        let head = []; 
-        head = head.concat(arr[0]); 
-        if (arr.length > 1) {
-            
+        let head = [],data = [];
+        let headArr = [];
+        if (arr.length > 1) { // judge variety whether is empty
+            headArr = this.getHead(arr);
         }
-        let data = this.unpackArray(value, head);
-        return data;
-        // console.log(222, data, head)
-        
+        head = head.concat(kindConst.vbsKind.VBS_LIST);
+        let content = this.unpackArray(value, head);
+        data =  data.concat(headArr, content);
+        return data;       
     }
+    // get variety if it is not empty
+    this.getHead = function(arr) {  
+        let headArr = [];
+        let head = [];
+        if (arr.length > 1) {
+            for (let i=0;i<arr.length;i++) {
+                if (arr[i] != kindConst.vbsKind.VBS_LIST) {
+                    headArr[i] = arr[i];
+                }
+            }
+        }
+        return this.decodeInterger(arr, headArr);
+    }
+    // decode array content
     this.unpackArray = function(value, arr) {
         var vbsDncode = new VbsDecode();
         let newArr = [];
         let newObj = [];
         let obj, x;
         obj = value.slice(arr.length, value.length - 1);
-        // console.log(obj.toString())
+        // console.log(111, obj.toString())
         let pos = 0, j=0;
         for (let i=0;i<obj.length;i++) {
             x = obj[i];
             newArr[i] = x;
             if (x < 0x80) {
-                // console.log(x, (x & 0x20), kindConst.vbsKind.VBS_STRING)
-                if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER || ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER + 0x20)) {
+                if (x == kindConst.vbsKind.VBS_BLOB) { // blob
+                    let n = (newArr[i-1]&0x7F);
+                    newObj[j++] = decode(obj.slice(i-1, i+n+1)); // encode from i-1 to i+n+1, and the length is n
+                    i = i + n; // i wiil skip len
+                    pos = i + 1; // slice from next postion                   
+                } else if (x >= kindConst.vbsKind.VBS_INTEGER) { // float and integer
+                    if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER || ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER + 0x20)) {
+                        newObj[j++] = decode(newArr.slice(pos, i+1));
+                        pos = i+1;
+                    }
+                } else if ((kindConst.vbsKind.VBS_STRING <= x) && (x <= 0x3F)) { // string
+                    let n = obj.length - newArr.length;
+                    let  len= (x & 0x1F); // get the string length
+                    // console.log(222, len, obj[i].toString(2),obj.slice(i, i+len+1))
+                    newObj[j++] = decode(obj.slice(i, i+len+1)); // need the identifier, so it start with pos-1
+                    i = i+len; // i wiil skip len-1
+                    pos = i+1; // slice from next postion
+                } else if (x >= kindConst.vbsKind.VBS_BOOL) {// 读取m,e
+                    newObj[j++] = decode(newArr.slice(i, i+1));
+                    pos++; // bool occupy one postion
+                    continue;
+                } else if ((x >= kindConst.vbsKind.VBS_DESCRIPTOR) && (x <= kindConst.vbsKind.VBS_DESCRIPTOR + 0x07)) { // string
+                    // console.log(222, x, newArr.slice(pos, i+1), newObj)
                     newObj[j++] = decode(newArr.slice(pos, i+1));
-                    pos = i+1;
-                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) {// 读取m,e
+                    pos = i+1; // bool occupy one postion
                     continue;
-                } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
+                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) {
                     continue;
-                }
+                } else if ((x == kindConst.vbsKind.VBS_LIST)) { // Array
+                    let n = i;
+                    for (;n < obj.length;) { // Find the end of the array
+                       if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
+                            n++;
+                        } else {
+                            break;
+                        }
+                    }
+                    newObj[j++] = decode(obj.slice(i, n+1)); // encode from i to n, and the length is n-i 
+                    i = n; // i wiil skip len
+                    pos = i+1; // slice from next postion
+                } else if (x == kindConst.vbsKind.VBS_NULL) { // null
+                    newObj[j++] = decode(newArr.slice(i, i+1)); // get one byte
+                    pos++;
+                    continue;
+                } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) {                   
+                    let descript = x;
+                    if (x != kindConst.vbsKind.VBS_DESCRIPTOR) {
+                        descript = decode(newArr.slice(pos, i));
+                    }
+                    newObj[j++] = descript;
+                    i = i+len; // i wiil skip len-1
+                    pos = i+1; // slice from next postion
+                } 
 
             }
 
         }
+
         return newObj;
-        console.log(newObj)
     }
     // if length of m is less than 7, pad it to 7
     function padZero(m) {
@@ -171,6 +230,7 @@ function decode(obj) {
     if (typeof obj == 'undefined' ) {
         return;
     }
+    // console.log(obj)
     let n = obj.length; 
     let x; 
     let arr = [];
@@ -200,7 +260,7 @@ function decode(obj) {
                 return vbsDncode.decodeString(obj, arr);
             } else if (x == kindConst.vbsKind.VBS_NULL) { // null
                 return null;
-            } else if (kindConst.vbsKind.VBS_DESCRIPTOR <= x <= 0x1F) { // descriptor
+            } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) { // descriptor
                 descript = vbsDncode.decodeDescriptor(obj, arr);
                 arr[i] = descript;
             } 

@@ -43,6 +43,9 @@ function VbsEncode() {
             }
         }
         arr[n] = kind | num;  // operate (VBS_INTEGER | num[num.length - 1])
+        if (arr[n] == 37) {
+            // console.log(kind, num)
+        }
         return arr;
     }
 
@@ -124,10 +127,9 @@ function VbsEncode() {
         return this.bp;
     }
     // Array
-    this.encodeArray = function(value, variety = 1) {
+    this.encodeArray = function(value) {
         let n = 0;
         let head = kindConst.vbsKind.VBS_LIST;
-        // let mid = vbsStringify(value);
         let arr = [];
         let arr2 = [];
         for (;n < value.length; n++) {
@@ -135,8 +137,8 @@ function VbsEncode() {
             arr2 = arr2.concat(arr[n]);
         }
         let tail = kindConst.vbsKind.VBS_TAIL; 
-        this.bp = this.bp.concat(head,arr2, tail);
-        // console.log(this.bp)
+        let arr3 = [];
+        this.bp = arr3.concat(head,arr2, tail);
         return this.bp;
     }
 }
@@ -148,7 +150,6 @@ function vbsStringify(obj) {
             return vbsEncode.encodeNull(obj);
         }
         switch (typeof obj) {
-            // console.log()
             case 'number':
                 // big-float will be lost when store it. If the type of obj is exceed 53, it express with float
                 if (commonFun.isInteger(obj) && obj <= Math.pow(2, 53)) {  
@@ -161,6 +162,7 @@ function vbsStringify(obj) {
             case 'string':
                 return vbsEncode.encodeString(obj);
             case 'undefined':
+            case 'null':
             case 'function':
                 return vbsEncode.encodeNull(obj);
             case 'object':
@@ -172,52 +174,6 @@ function vbsStringify(obj) {
                     return vbsEncode.encodeObject(obj);
                 }
         }
-        // console.log(Object.prototype.toString.call(obj))
-        // switch (Object.prototype.toString.call(obj)) {
-        //     case  '[object Int8Array]':
-        //     case  '[object Uint8Array]':
-        //     case  '[object Int16Array]':
-        //     case  '[object Uint16Array]':
-        //     case  '[object Int32Array]':
-        //     case  '[object Uint32Array]':
-        //     case  '[object Float32Array]':
-        //     case  '[object Float64Array]':       
-        //     case '[object Array]':
-        //         result += '[';
-        //         for (var i = 0, len = obj.length; i < len; i++) {
-        //             curVal = JSON.stringify(obj[i]);
-        //             result += (curVal === undefined ? null : curVal) + ",";
-        //         }
-        //         if (result !== '[') {
-        //             result = result.slice(0, -1);
-        //         }
-        //         result += ']';
-        //         return result;
-        //     case '[object Date]':
-        //         return '"' + (obj.toJSON ? obj.toJSON() : obj.toString()) + '"';
-        //     case '[object RegExp]':
-        //         return "{}";
-        //     case '[object Object]':
-        //         result += '{';
-        //         for (i in obj) {
-        //             if (obj.hasOwnProperty(i)) {
-        //                 curVal = JSON.stringify(obj[i]);
-        //                 if (curVal !== undefined) {
-        //                     result += '"' + i + '":' + curVal + ',';
-        //                 }
-        //             }
-        //         }
-        //         if (result !== '{') {
-        //             result = result.slice(0, -1);
-        //         }
-        //         result += '}';
-        //         return result;
-        //     case '[object String]':
-        //         return '"' + obj.toString() + '"';
-        //     case '[object Number]':
-        //     case '[object Boolean]':
-        //         return obj.toString();
-        // }
 }
 // apply vbs encode function
 function encodeVBS(u) { 
@@ -227,22 +183,23 @@ function encodeVBS(u) {
     for(var i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
-    console.log(33, strCode.toString())
+    // console.log(33,strCode.toString())
     return byteArr;
 }
 
 module.exports = {
     encodeVBS
 }
-testVbsNull()
-function testVbsNull() {
+testVbsArray()
+function testVbsArray() {
     // let u = [12,34,78,"string", null, 'undefied']; 
-    let u = [3,2];
+    let u = [8, new Uint8Array([15,68,12]),78,"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
     let myJson = encodeVBS(u);
     // console.log(myJson)
     var ss = vbsDecode.decodeVBS(myJson);
     console.log(u, myJson, ss)
 }
+// console.log([23,34,45,{"key":34,"value":56}])
 // testVbsString()
 // function testVbsString() {
 //     let u = "sdjsdh,sdjsdh, njsds"; 
