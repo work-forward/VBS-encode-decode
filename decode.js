@@ -1,10 +1,11 @@
 const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
+const commonFun = require('./common.js');
 function VbsDecode() {
     this.decodeInterger = function(value, arr, negative = false) {
         return this.unpackInt(arr, negative);
     }
-    this.unpackInt = function(v, negative) {
+    this.unpackInt = function(v, negative) { // pack the int
         let n = v.length;
         let m = '';
         let mon = '';
@@ -18,6 +19,8 @@ function VbsDecode() {
         }
         for (let i = 0;i < n; i++) { // mut byte splice v in order to get one byte every time
             if (i == n - 1) {
+                if (v[i] == kindConst.vbsKind.VBS_BLOB) // blob
+                    break;
                 m = (v[i]  & 0x1F).toString(2);
                 if ((v[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
                     m = '-' + m;
@@ -35,21 +38,22 @@ function VbsDecode() {
         }
         return parseInt(mon, 2);
     }
-    this.decodeFloat = function(value, arr, negative) {
+    this.decodeFloat = function(value, arr, negative) { // pack the float
+
         if (arr.length == 0) {
             return;
         }
         let mantissa = this.unpackFloat(arr, negative);
        
         let arrReamin = this.getRemain(value, arr);
-         // get exponent  by value code
-        let exponent = this.decodeInterger(value, arrReamin);
+         
+        let exponent = this.decodeInterger(value, arrReamin); // get exponent  by value code
 
-        let num = floatOperate.makeFloat(mantissa, exponent);
-        // console.log(222, mantissa, exponent)
+        let num = floatOperate.makeFloat(mantissa, exponent); 
+        // console.log(222, mantissa, arrReamin)
         return num;
     }
-    this.getRemain = function(arr1, arr2) { // get the e code
+    this.getRemain = function(arr1, arr2) { // get arr1 - arr2
         let arr = [];
         let len = arr1.length - arr2.length;
         for (let i=0; i < len; i++) {
@@ -74,6 +78,82 @@ function VbsDecode() {
         }
         return parseInt(mon, 2);
     }
+    // if length of value is accuracy, return the blob data
+    this.decodeBlob = function(value, arr) { 
+        let len = this.decodeInterger(value, arr);
+        if (len < 0) {
+            return;
+        }
+        
+        let arrRemain = this.getRemain(value, arr);
+
+        if(len != arrRemain.length) {
+            return;
+        }
+        let data = new Uint8Array(arrRemain); 
+        return data;
+    }
+    // if it is bool, return type
+    this.decodeBool = function(value, type) {
+        return type;
+    }
+
+    this.decodeString = function(value, arr) {
+        let len = this.decodeInterger(value, arr);
+
+        let arrRemain = this.getRemain(value, arr);
+
+        if (len != arrRemain.length) {
+            return;
+        }
+        let str = commonFun.byteToString(arrRemain);
+        return str;
+    }
+    this.decodeDescriptor = function(value, arr) {
+        // special descripe code
+        return this.decodeInterger(value, arr);
+    }
+    this.decodeArray = function(value, arr) {
+        // variety 不为空
+        let head = []; 
+        head = head.concat(arr[0]); 
+        if (arr.length > 1) {
+            
+        }
+        let data = this.unpackArray(value, head);
+        return data;
+        // console.log(222, data, head)
+        
+    }
+    this.unpackArray = function(value, arr) {
+        var vbsDncode = new VbsDecode();
+        let newArr = [];
+        let newObj = [];
+        let obj, x;
+        obj = value.slice(arr.length, value.length - 1);
+        // console.log(obj.toString())
+        let pos = 0, j=0;
+        for (let i=0;i<obj.length;i++) {
+            x = obj[i];
+            newArr[i] = x;
+            if (x < 0x80) {
+                // console.log(x, (x & 0x20), kindConst.vbsKind.VBS_STRING)
+                if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER || ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER + 0x20)) {
+                    newObj[j++] = decode(newArr.slice(pos, i+1));
+                    pos = i+1;
+                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) {// 读取m,e
+                    continue;
+                } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
+                    continue;
+                }
+
+            }
+
+        }
+        return newObj;
+        console.log(newObj)
+    }
+    // if length of m is less than 7, pad it to 7
     function padZero(m) {
         let len = m.length;
         for(; len <= 7; len++) {
@@ -85,47 +165,67 @@ function VbsDecode() {
     }
 }
 
-function getDecode(jsonObj) {
+
+function decode(obj) {
     var vbsDncode = new VbsDecode();
-    if (typeof jsonObj == 'undefined') {
+    if (typeof obj == 'undefined' ) {
         return;
     }
-    let n = jsonObj.length;
+    let n = obj.length; 
     let x; 
     let arr = [];
+    let descript = 0;
     for (let i=0; i<n;i++) {
-        if ((jsonObj[i] & 0x80) == 0) {
-            x = jsonObj[i];
+        if (obj[i] < 0x80) {
+            x = obj[i];
             arr[i] = x;
-            // console.log(i, x & 0x60)
+            // console.log(22, i, x, x == kindConst.vbsKind.VBS_FLOATING)
             if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
-                return vbsDncode.decodeInterger(jsonObj, arr, false);
+                return vbsDncode.decodeInterger(obj, arr, false);
             } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
-                return vbsDncode.decodeInterger(jsonObj, arr, true);
+                return vbsDncode.decodeInterger(obj, arr, true);
             } else if (x == kindConst.vbsKind.VBS_FLOATING) { // float +
-                return vbsDncode.decodeFloat(jsonObj, arr, false);
+                return vbsDncode.decodeFloat(obj, arr, false);
             } else if (x == kindConst.vbsKind.VBS_FLOATING + 1) { // float -
-               return vbsDncode.decodeFloat(jsonObj, arr, true);
-            } else {
+               return vbsDncode.decodeFloat(obj, arr, true);
+            } else if ((x == kindConst.vbsKind.VBS_LIST)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) {
+                return vbsDncode.decodeArray(obj, arr);
+            } else if (x == kindConst.vbsKind.VBS_BLOB) { // blob
+                return vbsDncode.decodeBlob(obj, arr);
+            } else if (x == kindConst.vbsKind.VBS_BOOL) { // false
+                return vbsDncode.decodeBool(obj, false);
+            } else if (x == kindConst.vbsKind.VBS_BOOL + 1) { // true
+                return vbsDncode.decodeBool(obj, true);
+            } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
+                return vbsDncode.decodeString(obj, arr);
+            } else if (x == kindConst.vbsKind.VBS_NULL) { // null
+                return null;
+            } else if (kindConst.vbsKind.VBS_DESCRIPTOR <= x <= 0x1F) { // descriptor
+                descript = vbsDncode.decodeDescriptor(obj, arr);
+                arr[i] = descript;
+            } 
 
-            }
         } else {
-            arr[i] = jsonObj[i];
+            arr[i] = obj[i];
         }
     }
 }
 
-function myJsonParse(opt) {
+function vbsParse(opt) {
         if (opt.length <= 0) {
                 return;
         }  
-       var jsonObj = eval(opt); // decode json
-       return getDecode(jsonObj);    
+       var dv = new DataView(opt); 
+       var obj = [];
+       for(var i = 0; i < opt.byteLength; i++) {
+          obj[i] =dv.getUint8(i);
+       }
+       return decode(obj);    
        
 }
-function jsonVbsDecode(u) {
-    return myJsonParse(u);
+function decodeVBS(u) {
+    return vbsParse(u);
 }
 module.exports = {
-    jsonVbsDecode
+    decodeVBS
 }

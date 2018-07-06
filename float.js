@@ -70,6 +70,9 @@ function FloatOperate() {
         	   	 num = Number.POSITIVE_INFINITY;
         	   }
         	}
+        	if (isNaN(expo)) {
+        		expo = flt_NAN;
+        	}
 
         	for (let i=0; i< 52; i++) {
 	            if (mantissa < 2 && ((mantissa % 1 != 0) | mantissa == 1)) {  
