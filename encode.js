@@ -209,41 +209,48 @@ function encodeVBS(u) {
     for(var i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
-    // console.log(33,strCode.toString())
+    // console.log('----AA-------',strCode.toString())
     return byteArr;
 }
 
 module.exports = {
     encodeVBS
 }
-testVbsKeyVal()
-function testVbsKeyVal() {
-    // let u = [12,34,78,"string", null, 'undefied'];
-    // let obj = {33: "dfdf"} 
-    // let u = {"a": "key","js":'23',"djd":"dsdh"};
-    let u = {"s":{"d":"f","dd":"fh"},"sdsd":"df","sds":1212,"sdj":"dshjf","sdj":{"sd":"fd","sdjksd":"dfjdkf"}};
-    let myJson = encodeVBS(u);
-    // // console.log(myJson)
-    var ss = vbsDecode.decodeVBS(myJson);
-    console.log(u, myJson, ss)
-}
-// testVbsArray()
-// function testVbsArray() {
-//     // let u = [12,34,78,"string", null, 'undefied']; 
-//     let u = [8, new Uint8Array([15,68,12]),78,"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+// testVbsKeyVal()
+// function testVbsKeyVal() {
+//     // let u = [12,34,78,"string", null, 'undefied'];
+//     // let obj = {33: "dfdf"} 
+//     // let u = {"a": "key","js":'23',"djd":"dsdh"};
+//     let cc = {
+//     	"k": "edf",
+//     	"l": "ddf",
+//     	"sd": 1234,
+//     	"sdf":"dfjk"
+//     }
+//     // let u = {"s":cc};
+//     let u = {"df":{"sd":"dsf"}, "s":cc,"dfj":"dfjk"};
 //     let myJson = encodeVBS(u);
 //     // console.log(myJson)
 //     var ss = vbsDecode.decodeVBS(myJson);
 //     console.log(u, myJson, ss)
 // }
+testVbsArray()
+function testVbsArray() {
+    let u = [12,34,78,"string", null, 'undefied']; 
+    // let u = [8, new Uint8Array([15,68,12]),78,"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+    let myJson = encodeVBS(u);
+    // console.log(myJson)
+    var ss = vbsDecode.decodeVBS(myJson);
+    console.log(u, myJson, ss)
+}
 // console.log([23,34,45,{"key":34,"value":56}])
 // testVbsString()
 // function testVbsString() {
-//     let u = "sdjsdh,sdjsdh, njsds,dfdf,jsd,12344,dfhj"; 
+//     let u = "sdjsdh,sdhjsd, njsds,dfdf,jsd,12344,dfhj"; 
 //     let myJson = encodeVBS(u);
 //     // console.log(myJson)
 //     var ss = vbsDecode.decodeVBS(myJson);
-//     console.log(u, ss)
+//     console.log(u, '----' ,ss)
 // }
 // testVbsBool()
 // function testVbsBool() {
@@ -261,13 +268,13 @@ function testVbsKeyVal() {
 //         let myJson = encodeVBS(u);
 //         i++;
 //         var ss = vbsDecode.decodeVBS(myJson);
-//         console.log(ss)
+//         console.log(u, ss)
 //     }
     
 // }
 // function testVbsFloat() {
-//     let u = -1.1;  // small number test
-//     // let u = Math.pow(2, 1022) - 1  // big number test
+//     // let u = -1334348934834.3454343488495845;  // small number test
+//     let u = Math.pow(2, 1022) - 1  // big number test
 //     // let u = NaN;
 //     // let u = 0;
 //     let myCode = encodeVBS(u);
