@@ -5,7 +5,7 @@ function VbsDecode() {
     this.decodeInterger = function(value, arr, negative = false) {
         return this.unpackInt(arr, negative);
     }
-    this.unpackInt = function(v, negative) { // pack the int
+    this.unpackInt = function(v, negative) { // unpack the int
         let n = v.length;
         let m = '';
         let mon = '';
@@ -18,6 +18,7 @@ function VbsDecode() {
             return parseInt(m, 2);
         }
         for (let i = 0;i < n; i++) { // mut byte splice v in order to get one byte every time
+            
             if (i == n - 1) {
                 if (v[i] == kindConst.vbsKind.VBS_BLOB) // blob
                     break;
@@ -38,7 +39,7 @@ function VbsDecode() {
         }
         return parseInt(mon, 2);
     }
-    this.decodeFloat = function(value, arr, negative) { // pack the float
+    this.decodeFloat = function(value, arr, negative) { // unpack the float
 
         if (arr.length == 0) {
             return;
@@ -102,13 +103,24 @@ function VbsDecode() {
     this.decodeString = function(value, arr) {
         let len = this.decodeInterger(value, arr);
 
-        let arrRemain = this.getRemain(value, arr);
+        let arrRemain = this.getRemain(value, arr); // value - arr
 
-        if (len != arrRemain.length) {
+        let ctnArr = this.getStringContent(arrRemain,len); // spilt arrRemain the len when it is object
+        
+        if (len != ctnArr.length) {
             return;
         }
-        let str = commonFun.byteToString(arrRemain);
-        return str;
+        let str = commonFun.byteToString(ctnArr);
+        
+        return [len, str];
+    }
+    //split the value from 0 to len,and the length is len
+    this.getStringContent = function(value,len) {
+        let arr = [];
+        for(let i=0;i<len;i++) {
+            arr[i] = value[i];
+        }
+        return arr;
     }
     // special descripe decode
     this.decodeDescriptor = function(value, arr) {        
@@ -122,7 +134,7 @@ function VbsDecode() {
             headArr = this.getHead(arr);
         }
         head = head.concat(kindConst.vbsKind.VBS_LIST);
-        let content = this.unpackArray(value, head);
+        let content = this.unpackArray(value.slice(arr.length, value.length - 1));
         data =  data.concat(headArr, content);
         return data;       
     }
@@ -140,18 +152,18 @@ function VbsDecode() {
         return this.decodeInterger(arr, headArr);
     }
     // decode array content
-    this.unpackArray = function(value, arr) {
+    this.unpackArray = function(obj) {
         var vbsDncode = new VbsDecode();
         let newArr = [];
         let newObj = [];
-        let obj, x;
-        obj = value.slice(arr.length, value.length - 1);
+        let x;
         // console.log(111, obj.toString())
         let pos = 0, j=0;
+        let childObj = {};
         for (let i=0;i<obj.length;i++) {
             x = obj[i];
             newArr[i] = x;
-            if (x < 0x80) {
+            if (x < 0x80) { // judeg the type of the array
                 if (x == kindConst.vbsKind.VBS_BLOB) { // blob
                     let n = (newArr[i-1]&0x7F);
                     newObj[j++] = decode(obj.slice(i-1, i+n+1)); // encode from i-1 to i+n+1, and the length is n
@@ -169,7 +181,7 @@ function VbsDecode() {
                     newObj[j++] = decode(obj.slice(i, i+len+1)); // need the identifier, so it start with pos-1
                     i = i+len; // i wiil skip len-1
                     pos = i+1; // slice from next postion
-                } else if (x >= kindConst.vbsKind.VBS_BOOL) {// 读取m,e
+                } else if (x >= kindConst.vbsKind.VBS_BOOL) {// read m and e
                     newObj[j++] = decode(newArr.slice(i, i+1));
                     pos++; // bool occupy one postion
                     continue;
@@ -189,7 +201,19 @@ function VbsDecode() {
                             break;
                         }
                     }
-                    newObj[j++] = decode(obj.slice(i, n+1)); // encode from i to n, and the length is n-i 
+                    newObj[j++] = decode(obj.slice(i, n+1)); // Decode from i to n, and the length is n-i 
+                    i = n; // i wiil skip len
+                    pos = i+1; // slice from next postion
+                } else if ((x == kindConst.vbsKind.VBS_DICT)) { // Array
+                    let n = i;
+                    for (;n < obj.length;) { // Find the end of the array
+                       if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
+                            n++;
+                        } else {
+                            break;
+                        }
+                    }
+                    newObj[j++] = decode(obj.slice(i, n+1)); // Decode from i to n, and the length is n-i 
                     i = n; // i wiil skip len
                     pos = i+1; // slice from next postion
                 } else if (x == kindConst.vbsKind.VBS_NULL) { // null
@@ -209,8 +233,60 @@ function VbsDecode() {
             }
 
         }
-
         return newObj;
+    }
+
+    // decode object
+    this.decodeObject = function(value, arr) {
+        let head = [],data = [];
+        let headArr = [],valContent = [];
+        if (arr.length > 1) { // if variety is not empty
+            headArr = this.getHead(arr);
+        }
+        head = head.concat(kindConst.vbsKind.VBS_LIST);
+        valContent = value.slice(1,value.length-1); // Remove the head and tail
+        let content = this.unpackObject(valContent);
+        if (commonFun.isEmpty(headArr)) {
+            return content;
+        }
+        data =  data.concat(headArr, content);
+        return data;       
+    }
+    this.unpackObject = function(value) {
+        let obj = {},newObj,arr;
+        let keyStr,valueObj,j=0; 
+        // console.log(value.toString())
+        let n = value.length;
+        for (let i=0;i<n;i++) {
+            if ((value[i]&0x20) == kindConst.vbsKind.VBS_STRING) { // the key is string
+                    [j, keyStr] = decode(value.slice(i, n));   // get the key                
+                    i += j+1; // except value[i] from above
+                    if (value[i] == kindConst.vbsKind.VBS_DICT) { // child key->value
+                        [newObj, i, j] = unpackContentObj(value, n, i, j); 
+                        obj[keyStr] = newObj;
+                    } else {
+                        [j, valueObj] = decode(value.slice(i,n));  // get the value
+                        i += j;
+                        obj[keyStr] = valueObj;  // construct the object key->value
+                    }                  
+            }
+        }
+        return obj;
+        
+    }
+    // find the content of object and decode it.
+    function unpackContentObj(value, n, i, j) { // child object
+        let newObj;
+        for (j = i;j<n;) { // get the object content   
+           if (value[j] != kindConst.vbsKind.VBS_TAIL) { // 
+               j++;
+           } else {
+            break;
+           }
+        }
+        newObj = decode(value.slice(i,j+1)); // get the content from head(0x02) to tail(0x01)
+        i = j;  // next element from j+1 start
+        return [newObj, i, j];
     }
     // if length of m is less than 7, pad it to 7
     function padZero(m) {
@@ -230,7 +306,6 @@ function decode(obj) {
     if (typeof obj == 'undefined' ) {
         return;
     }
-    // console.log(obj)
     let n = obj.length; 
     let x; 
     let arr = [];
@@ -241,7 +316,8 @@ function decode(obj) {
             arr[i] = x;
             // console.log(22, i, x, x == kindConst.vbsKind.VBS_FLOATING)
             if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
-                return vbsDncode.decodeInterger(obj, arr, false);
+                // return vbsDncode.decodeInterger(obj, arr, false);
+                return [i,vbsDncode.decodeInterger(obj, arr, false)];
             } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
                 return vbsDncode.decodeInterger(obj, arr, true);
             } else if (x == kindConst.vbsKind.VBS_FLOATING) { // float +
@@ -257,14 +333,18 @@ function decode(obj) {
             } else if (x == kindConst.vbsKind.VBS_BOOL + 1) { // true
                 return vbsDncode.decodeBool(obj, true);
             } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
-                return vbsDncode.decodeString(obj, arr);
+                let [len, str] = vbsDncode.decodeString(obj, arr);
+                // console.log(333, len, str)
+                return [len, str];
+                // return [i,vbsDncode.decodeString(obj, arr)];
             } else if (x == kindConst.vbsKind.VBS_NULL) { // null
                 return null;
             } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) { // descriptor
                 descript = vbsDncode.decodeDescriptor(obj, arr);
                 arr[i] = descript;
-            } 
-
+            } else if ((x == kindConst.vbsKind.VBS_DICT)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) {
+                return vbsDncode.decodeObject(obj, arr);
+            }
         } else {
             arr[i] = obj[i];
         }

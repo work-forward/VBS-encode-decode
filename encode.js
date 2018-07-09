@@ -114,6 +114,7 @@ function VbsEncode() {
     }
     // string encode
     this.encodeString = function(value) {
+        // console.log(222, value)
         this.packIntOrStringHead(kindConst.vbsKind.VBS_STRING, value.length);
         let n = this.bp.length;
         let bytes = commonFun.stringToByte(value);
@@ -138,8 +139,33 @@ function VbsEncode() {
         }
         let tail = kindConst.vbsKind.VBS_TAIL; 
         let arr3 = [];
-        this.bp = arr3.concat(head,arr2, tail);
+        this.bp = arr3.concat(head,arr2, tail); // head+arr2+tail
         return this.bp;
+    }
+    // encode object key/value
+    this.encodeObject = function(value) {
+        let head = kindConst.vbsKind.VBS_DICT; // head identity
+        let arr = [];
+        let obj = packObject(value); // pack the content by key/value
+        let tail = kindConst.vbsKind.VBS_TAIL; 
+        this.bp = arr.concat(head,obj, tail); // head+obj+tail  
+        return this.bp;
+    }
+    // pack the object
+    function packObject(obj) {
+      let arr = [];
+      let data = [];
+      let j=0;
+      for (let i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            arr[j++] = vbsStringify(i); // pack the key
+            // console.log(i,arr[j-1])
+            arr[j++] = vbsStringify(obj[i]); // pack the value that key->value
+            // console.log(obj[i],arr[j-1])
+            data = data.concat(arr[j-2],arr[j-1]); // concat the pack key-value
+        }
+      }
+      return data;
     }
 }
 
@@ -190,23 +216,34 @@ function encodeVBS(u) {
 module.exports = {
     encodeVBS
 }
-testVbsArray()
-function testVbsArray() {
-    // let u = [12,34,78,"string", null, 'undefied']; 
-    let u = [8, new Uint8Array([15,68,12]),78,"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+testVbsKeyVal()
+function testVbsKeyVal() {
+    // let u = [12,34,78,"string", null, 'undefied'];
+    // let obj = {33: "dfdf"} 
+    // let u = {"a": "key","js":'23',"djd":"dsdh"};
+    let u = {"s":{"d":"f","dd":"fh"},"sdsd":"df","sds":1212,"sdj":"dshjf","sdj":{"sd":"fd","sdjksd":"dfjdkf"}};
     let myJson = encodeVBS(u);
-    // console.log(myJson)
+    // // console.log(myJson)
     var ss = vbsDecode.decodeVBS(myJson);
     console.log(u, myJson, ss)
 }
-// console.log([23,34,45,{"key":34,"value":56}])
-// testVbsString()
-// function testVbsString() {
-//     let u = "sdjsdh,sdjsdh, njsds"; 
+// testVbsArray()
+// function testVbsArray() {
+//     // let u = [12,34,78,"string", null, 'undefied']; 
+//     let u = [8, new Uint8Array([15,68,12]),78,"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
 //     let myJson = encodeVBS(u);
 //     // console.log(myJson)
 //     var ss = vbsDecode.decodeVBS(myJson);
-//     console.log(ss)
+//     console.log(u, myJson, ss)
+// }
+// console.log([23,34,45,{"key":34,"value":56}])
+// testVbsString()
+// function testVbsString() {
+//     let u = "sdjsdh,sdjsdh, njsds,dfdf,jsd,12344,dfhj"; 
+//     let myJson = encodeVBS(u);
+//     // console.log(myJson)
+//     var ss = vbsDecode.decodeVBS(myJson);
+//     console.log(u, ss)
 // }
 // testVbsBool()
 // function testVbsBool() {
