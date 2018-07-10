@@ -347,8 +347,8 @@ function vbsParse(opt) {
                 return;
         }  
        var dv = new DataView(opt); 
-       var obj = [];
-       for(var i = 0; i < opt.byteLength; i++) {
+       let obj = [];
+       for(let i = 0; i < opt.byteLength; i++) {
           obj[i] =dv.getUint8(i);
        }
        let [,data] = decode(obj);

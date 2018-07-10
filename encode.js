@@ -14,7 +14,7 @@ function VbsEncode() {
     }
 
     this.packIntOrStringHead = function(kind, num) {
-        var n = 0;
+        let n = 0;
         let len = this.bp.length;
         this.bp = _intShift(this.bp, n + len, kind, num); 
     }
@@ -167,7 +167,6 @@ function VbsEncode() {
 
 function vbsStringify(obj) {
         var vbsEncode = new VbsEncode();
-        var result = '', curVal;
         if (obj === null) {
             return vbsEncode.encodeNull(obj);
         }
@@ -202,7 +201,7 @@ function encodeVBS(u) {
     let strCode = new vbsStringify(u);  // get encode vbs
     let byteArr = new ArrayBuffer(strCode.length); 
     let vbsCode = new DataView(byteArr);
-    for(var i = 0; i < strCode.length; i++) {
+    for(let i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
     return byteArr;
@@ -224,36 +223,47 @@ module.exports = {
 //     }
 //     // let u = {"s":cc};
 //     let u = {"df":{"sd":"dsf"}, "s":cc,"dfj":"dfjk"};
-//     let myJson = encodeVBS(u);
-//     // console.log(myJson)
-//     var ss = vbsDecode.decodeVBS(myJson);
-//     console.log(u, myJson, ss)
+//     let myVbs = encodeVBS(u);
+//     // console.log(myVbs)
+//     var ss = vbsDecode.decodeVBS(myVbs);
+//     console.log(u, myVbs, ss)
 // }
-testVbsArray()
-function testVbsArray() {
-	// let u = [12,34,78]; 
-    // let u = [12,[15,89]]; 
-    let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-    let myJson = encodeVBS(u);
-    // console.log(myJson)
-    let ss = vbsDecode.decodeVBS(myJson);
-    console.log(u, myJson, ss)
+// testVbsArray()
+// function testVbsArray() {
+// 	// let u = [12,34,78]; 
+//     // let u = [12,[15,89]]; 
+//     let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+//     let myVbs = encodeVBS(u);
+//     // console.log(myVbs)
+//     let ss = vbsDecode.decodeVBS(myVbs);
+//     console.log(u, myVbs, ss)
+// }
+testVbsBatArray()
+function testVbsBatArray() {
+    for (let i=0;i<100;) {
+    	 let u = [8, new Uint8Array([15,68,12]),67,[i,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+	    let myVbs = encodeVBS(u);
+	    i += 20;
+	    // console.log(myVbs)
+	    let ss = vbsDecode.decodeVBS(myVbs);
+	    console.log(u, myVbs, ss)
+    }  
 }
 // console.log([23,34,45,{"key":34,"value":56}])
 // testVbsString()
 // function testVbsString() {
 //     let u = "sdjsdh,sdhjsd, njsds,dfdf,jsd,12344,dfhj"; 
-//     let myJson = encodeVBS(u);
-//     // console.log(myJson)
-//     var ss = vbsDecode.decodeVBS(myJson);
+//     let myVbs = encodeVBS(u);
+//     // console.log(myVbs)
+//     var ss = vbsDecode.decodeVBS(myVbs);
 //     console.log(u, '----' ,ss)
 // }
 // testVbsBool()
 // function testVbsBool() {
 //     let u = false; 
-//     let myJson = encodeVBS(u);
-//     // console.log(myJson)
-//     var ss = vbsDecode.decodeVBS(myJson);
+//     let myVbs = encodeVBS(u);
+//     // console.log(myVbs)
+//     var ss = vbsDecode.decodeVBS(myVbs);
 //     console.log(ss)
     
 // }
@@ -261,9 +271,9 @@ function testVbsArray() {
 // function testVbsBlob() {
 //     for (let i = 0;i<20; i++) {
 //          u = new Uint8Array([1,i,3,4,5,6,230,255]); 
-//         let myJson = encodeVBS(u);
+//         let myVbs = encodeVBS(u);
 //         i++;
-//         var ss = vbsDecode.decodeVBS(myJson);
+//         var ss = vbsDecode.decodeVBS(myVbs);
 //         console.log(u, ss)
 //     }
     
@@ -276,7 +286,7 @@ function testVbsArray() {
 //     let myCode = encodeVBS(u);
 //     let ss = vbsDecode.decodeVBS(myCode);
 //     console.log(u, myCode, ss)
-//     // var dv = new DataView(myJson); 
+//     // var dv = new DataView(myVbs); 
 //     // // 从第1个字节读取一个8位无符号整数
 //     // var v1 = dv.getUint8(0);
 //     // console.log(v1)
@@ -284,21 +294,21 @@ function testVbsArray() {
 // testVbsFloat()
 // function testVbsFloat() {
 //     // for (let u = 1;u < 50;) {
-//     //    let myJson = encodeVBS(u);
-//     //    let ss = vbsDecode.decodeVBS(myJson);
-//     //    console.log(u, myJson, ss)
+//     //    let myVbs = encodeVBS(u);
+//     //    let ss = vbsDecode.decodeVBS(myVbs);
+//     //    console.log(u, myVbs, ss)
 //     //    u += Math.random();
 //     // } 
 //     for (let u = 10;u < 433555556756565;) {
-//        let myJson = encodeVBS(u);
-//        let ss = vbsDecode.decodeVBS(myJson);
-//        console.log(u, myJson, ss)
+//        let myVbs = encodeVBS(u);
+//        let ss = vbsDecode.decodeVBS(myVbs);
+//        console.log(u, myVbs, ss)
 //        u *= 51;
 //     } 
 //     // for ( u = 10.5;u < 428543.44189;) {
-//     //    var myJson = encodeVBS(u);
-//     //    var ss = vbsDecode.decodeVBS(myJson);
-//     //    console.log(u, myJson, ss)
+//     //    var myVbs = encodeVBS(u);
+//     //    var ss = vbsDecode.decodeVBS(myVbs);
+//     //    console.log(u, myVbs, ss)
 //     //    u += 100.6898;
 //     // }
     
