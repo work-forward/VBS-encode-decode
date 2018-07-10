@@ -160,22 +160,22 @@ function VbsDecode() {
         let valueObj,j=0,m=0; 
         let n = value.length;
         for (let i=0;i<n;i++) {
-            if (value[i] == kindConst.vbsKind.VBS_LIST) { // child key->value
+            if (value[i] == kindConst.vbsKind.VBS_LIST) { // child array
                 [newObj, i, j] = unpackHeadOfArray(value, n, i, j); 
                 obj[m++] = newObj;
             } else {
-                [j, valueObj] = decode(value.slice(i,n));  // get the value
+                [j, valueObj] = decode(value.slice(i,n));  // get the value of one type
                 i += j;
-                obj[m++] = valueObj;  // construct the object key->value
+                obj[m++] = valueObj;  // construct the  element of the array
             } 
 
         }
         return obj;
     }
     // find the content of object and decode it.
-    function unpackHeadOfArray(value, n, i, j) { // child object
+    function unpackHeadOfArray(value, n, i, j) { // child array
         let newObj;
-        for (j = i;j<n;) { // get the object content   
+        for (j = i;j<n;) { // get the array content   
            if (value[j] != kindConst.vbsKind.VBS_TAIL) { // 
                j++;
            } else {
