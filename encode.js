@@ -233,7 +233,7 @@ testVbsArray()
 function testVbsArray() {
 	// let u = [12,34,78]; 
     // let u = [12,[15,89]]; 
-    let u = [8, new Uint8Array([15,68,12]),78,[15,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+    let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
     let myJson = encodeVBS(u);
     // console.log(myJson)
     let ss = vbsDecode.decodeVBS(myJson);

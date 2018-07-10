@@ -178,15 +178,11 @@ function VbsDecode() {
                     [,newObj[j++]] = decode(obj.slice(i, i+len+1)); // need the identifier, so it start with pos-1
                     i = i+len; // i wiil skip len-1
                     pos = i+1; // slice from next postion
-                } else if (x >= kindConst.vbsKind.VBS_BOOL) {// read m and e
+                } else if (x >= kindConst.vbsKind.VBS_BOOL) {
                     [,newObj[j++]] = decode(newArr.slice(i, i+1));
                     pos++; // bool occupy one postion
                     continue;
-                } else if ((x >= kindConst.vbsKind.VBS_DESCRIPTOR) && (x <= kindConst.vbsKind.VBS_DESCRIPTOR + 0x07)) { // string
-                    [,newObj[j++]] = decode(newArr.slice(pos, i+1));
-                    pos = i+1; // bool occupy one postion
-                    continue;
-                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) {
+                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) { 
                     continue;
                 } else if ((x == kindConst.vbsKind.VBS_LIST)) { // Array
                     let n = i;
@@ -200,7 +196,7 @@ function VbsDecode() {
                     [,newObj[j++]] = decode(obj.slice(i, n+1)); // Decode from i to n, and the length is n-i 
                     i = n; // i wiil skip len
                     pos = i+1; // slice from next postion
-                } else if ((x == kindConst.vbsKind.VBS_DICT)) { // Array
+                } else if ((x == kindConst.vbsKind.VBS_DICT)) { // Object
                     let n = i;
                     for (;n < obj.length;) { // Find the end of the array
                        if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
@@ -216,7 +212,7 @@ function VbsDecode() {
                     [,newObj[j++]] = decode(newArr.slice(i, i+1)); // get one byte
                     pos++;
                     continue;
-                } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) {                   
+                } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= kindConst.vbsKind.VBS_DESCRIPTOR + 0x07)) {  //descriptor                 
                     let descript = x;
                     if (x != kindConst.vbsKind.VBS_DESCRIPTOR) {
                         [,descript] = decode(newArr.slice(pos, i));
