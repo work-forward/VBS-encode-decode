@@ -43,9 +43,6 @@ function VbsEncode() {
             }
         }
         arr[n] = kind | num;  // operate (VBS_INTEGER | num[num.length - 1])
-        if (arr[n] == 37) {
-            // console.log(kind, num)
-        }
         return arr;
     }
 
@@ -159,9 +156,8 @@ function VbsEncode() {
       for (let i in obj) {
         if (obj.hasOwnProperty(i)) {
             arr[j++] = vbsStringify(i); // pack the key
-            // console.log(i,arr[j-1])
             arr[j++] = vbsStringify(obj[i]); // pack the value that key->value
-            // console.log(obj[i],arr[j-1])
+
             data = data.concat(arr[j-2],arr[j-1]); // concat the pack key-value
         }
       }
@@ -209,7 +205,6 @@ function encodeVBS(u) {
     for(var i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
-    // console.log('----AA-------',strCode.toString())
     return byteArr;
 }
 
@@ -237,8 +232,8 @@ module.exports = {
 testVbsArray()
 function testVbsArray() {
 	// let u = [12,34,78]; 
-    let u = [12,[15,89]]; 
-    // let u = [8, new Uint8Array([15,68,12]),78,[15,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+    // let u = [12,[15,89]]; 
+    let u = [8, new Uint8Array([15,68,12]),78,[15,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
     let myJson = encodeVBS(u);
     // console.log(myJson)
     let ss = vbsDecode.decodeVBS(myJson);

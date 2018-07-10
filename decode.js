@@ -34,13 +34,12 @@ function VbsDecode() {
             }
             mon = m + mon;
         }
-        if (negative == true) {
+        if (negative == true) { // symbol
             mon = '-' + mon;
         }
         return parseInt(mon, 2);
     }
     this.decodeFloat = function(value, arr, negative) { // unpack the float
-
         if (arr.length == 0) {
             return;
         }
@@ -51,7 +50,7 @@ function VbsDecode() {
         let exponent = this.decodeInterger(value, arrReamin); // get exponent  by value code
 
         let num = floatOperate.makeFloat(mantissa, exponent); 
-        // console.log(222, mantissa, arrReamin)
+
         return num;
     }
     // get arr1 - arr2
@@ -135,7 +134,7 @@ function VbsDecode() {
         }
         head = head.concat(kindConst.vbsKind.VBS_LIST);
         let content = this.unpackArray(value.slice(arr.length, value.length - 1));
-        // console.log("--AAAAA--", content)
+
         data =  data.concat(headArr, content);
         return data;       
     }
@@ -176,7 +175,6 @@ function VbsDecode() {
                 } else if ((kindConst.vbsKind.VBS_STRING <= x) && (x <= 0x3F)) { // string
                     let n = obj.length - newArr.length;
                     let  len= (x & 0x1F); // get the string length
-                    // console.log(222, len, obj[i].toString(2),obj.slice(i, i+len+1))
                     [,newObj[j++]] = decode(obj.slice(i, i+len+1)); // need the identifier, so it start with pos-1
                     i = i+len; // i wiil skip len-1
                     pos = i+1; // slice from next postion
@@ -185,7 +183,6 @@ function VbsDecode() {
                     pos++; // bool occupy one postion
                     continue;
                 } else if ((x >= kindConst.vbsKind.VBS_DESCRIPTOR) && (x <= kindConst.vbsKind.VBS_DESCRIPTOR + 0x07)) { // string
-                    // console.log(222, x, newArr.slice(pos, i+1), newObj)
                     [,newObj[j++]] = decode(newArr.slice(pos, i+1));
                     pos = i+1; // bool occupy one postion
                     continue;
@@ -237,7 +234,6 @@ function VbsDecode() {
 
     // decode object
     this.decodeObject = function(value, arr) {
-        // console.log(222, value, arr)
         let head = [],data = [];
         let headArr = [],valContent = [];
         if (arr.length > 1) { // if variety is not empty
@@ -315,8 +311,7 @@ function decode(obj) {
             x = obj[i];
             arr[i] = x;
             if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
-                // i is the position of the identifier different type
-                // record it to find the to recover the integer.
+                // i is the position of the identifier different type, record it to find the to recover the integer.
                 let data= vbsDncode.decodeInterger(obj, arr, false);
                 return [i, data]; 
             } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
