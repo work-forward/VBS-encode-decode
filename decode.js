@@ -194,7 +194,7 @@ function VbsDecode() {
             headArr = this.getHead(arr);
         }
         head = head.concat(kindConst.vbsKind.VBS_LIST);
-        valContent = value.slice(1,value.length-1); // Remove the head and tail
+        valContent = value.slice(arr.length,value.length-1); // Remove the head and tail
         let content = this.unpackObject(valContent);
         if (commonFun.isEmpty(headArr)) {
             return content;
@@ -274,9 +274,9 @@ function decode(obj) {
                 return [i, vbsDncode.decodeFloat(obj, arr, false)];
             } else if (x == kindConst.vbsKind.VBS_FLOATING + 1) { // float -
                return [i, vbsDncode.decodeFloat(obj, arr, true)];
-            } else if ((x == kindConst.vbsKind.VBS_LIST)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) { // array
+            } else if ((x == kindConst.vbsKind.VBS_LIST)) { // array
                 return [i,vbsDncode.decodeArray(obj, arr)];
-            } else if ((x == kindConst.vbsKind.VBS_DICT)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) { // key->value
+            } else if ((x == kindConst.vbsKind.VBS_DICT)) { // key->value
                 return [i,vbsDncode.decodeObject(obj, arr)];
             } else if (x == kindConst.vbsKind.VBS_BLOB) { // blob
                 let [len, blobData] = vbsDncode.decodeBlob(obj, arr);
