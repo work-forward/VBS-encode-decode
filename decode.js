@@ -135,6 +135,7 @@ function VbsDecode() {
         }
         head = head.concat(kindConst.vbsKind.VBS_LIST);
         let content = this.unpackArray(value.slice(arr.length, value.length - 1));
+        // console.log("--AAAAA--", content)
         data =  data.concat(headArr, content);
         return data;       
     }
@@ -157,9 +158,7 @@ function VbsDecode() {
         let newArr = [];
         let newObj = [];
         let x;
-        // console.log(111, obj.toString())
         let pos = 0, j=0;
-        let childObj = {};
         for (let i=0;i<obj.length;i++) {
             x = obj[i];
             newArr[i] = x;
@@ -262,7 +261,6 @@ function VbsDecode() {
                     [j, keyStr] = decode(value.slice(i, n));   // get the key                
                     i += j+1; // except value[i] from above
                     if (value[i] == kindConst.vbsKind.VBS_DICT) { // child key->value
-                        // console.log(n, i, j,value.toString())
                         [newObj, i, j] = unpackContentObj(value, n, i, j); 
                         obj[keyStr] = newObj;
                     } else {
@@ -316,12 +314,11 @@ function decode(obj) {
         if (obj[i] < 0x80) {
             x = obj[i];
             arr[i] = x;
-            // console.log(22, i, x, x == kindConst.vbsKind.VBS_FLOATING)
             if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
-                // return vbsDncode.decodeInterger(obj, arr, false);
                 // i is the position of the identifier different type
                 // record it to find the to recover the integer.
-                return [i,vbsDncode.decodeInterger(obj, arr, false)]; 
+                let data= vbsDncode.decodeInterger(obj, arr, false);
+                return [i, data]; 
             } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
                 return [i, vbsDncode.decodeInterger(obj, arr, true)];
             } else if (x == kindConst.vbsKind.VBS_FLOATING) { // float +
@@ -341,9 +338,7 @@ function decode(obj) {
                 return [i,vbsDncode.decodeBool(obj, true)];
             } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
                 let [len, str] = vbsDncode.decodeString(obj, arr);
-                // console.log(333, len, str)
                 return [len, str];
-                // return [i,vbsDncode.decodeString(obj, arr)];
             } else if (x == kindConst.vbsKind.VBS_NULL) { // null
                 return [i,null];
             } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) { // descriptor
