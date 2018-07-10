@@ -222,33 +222,33 @@ module.exports = {
 //     	"sdf":"dfjk"
 //     }
 //     // let u = {"s":cc};
-//     let u = {"df":{"sd":"dsf"}, "s":cc,"dfj":"dfjk"};
+//     let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sds":new Uint8Array([15,68,12]),"sjdksd":"df","sg": new Uint8Array([78,90])};
 //     let myVbs = encodeVBS(u);
 //     // console.log(myVbs)
 //     var ss = vbsDecode.decodeVBS(myVbs);
 //     console.log(u, myVbs, ss)
 // }
-// testVbsArray()
-// function testVbsArray() {
-// 	// let u = [12,34,78]; 
-//     // let u = [12,[15,89]]; 
-//     let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-//     let myVbs = encodeVBS(u);
-//     // console.log(myVbs)
-//     let ss = vbsDecode.decodeVBS(myVbs);
-//     console.log(u, myVbs, ss)
-// }
-testVbsBatArray()
-function testVbsBatArray() {
-    for (let i=0;i<100;) {
-    	 let u = [8, new Uint8Array([15,68,12]),67,[i,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-	    let myVbs = encodeVBS(u);
-	    i += 20;
-	    // console.log(myVbs)
-	    let ss = vbsDecode.decodeVBS(myVbs);
-	    console.log(u, myVbs, ss)
-    }  
+testVbsArray()
+function testVbsArray() {
+	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
+    // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
+    let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+    let myVbs = encodeVBS(u);
+    // console.log(myVbs)
+    let ss = vbsDecode.decodeVBS(myVbs);
+    console.log(u, myVbs, ss)
 }
+// testVbsBatArray()
+// function testVbsBatArray() {
+//     for (let i=0;i<100;) {
+//     	 let u = [8, new Uint8Array([15,68,12]),67,[i,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+// 	    let myVbs = encodeVBS(u);
+// 	    i += 20;
+// 	    // console.log(myVbs)
+// 	    let ss = vbsDecode.decodeVBS(myVbs);
+// 	    console.log(u, myVbs, ss)
+//     }  
+// }
 // console.log([23,34,45,{"key":34,"value":56}])
 // testVbsString()
 // function testVbsString() {
@@ -275,8 +275,15 @@ function testVbsBatArray() {
 //         i++;
 //         var ss = vbsDecode.decodeVBS(myVbs);
 //         console.log(u, ss)
-//     }
-    
+//     }  
+// }
+
+// testVbsBlob()
+// function testVbsBlob() {
+//     let u = new Uint8Array([1,6,3,4,5,78,6,230,255]); 
+//     let myVbs = encodeVBS(u);
+//     var ss = vbsDecode.decodeVBS(myVbs);
+//     console.log(u, ss)  
 // }
 // function testVbsFloat() {
 //     // let u = -1334348934834.3454343488495845;  // small number test

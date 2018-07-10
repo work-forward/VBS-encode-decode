@@ -2,6 +2,7 @@ const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
 const commonFun = require('./common.js');
 function VbsDecode() {
+    VbsDecode.prototype.dp = [];
     this.decodeInterger = function(value, arr, negative = false) {
         return this.unpackInt(arr, negative);
     }
@@ -88,10 +89,14 @@ function VbsDecode() {
         
         let arrRemain = this.getRemain(value, arr); // get value - arr
 
+        arrRemain = arrRemain.slice(0,len);
+        // console.log("---------",value,arr,arrRemain,len)
+
         if(len != arrRemain.length) {
             return;
         }
         let data = new Uint8Array(arrRemain); 
+        len = arr.length + len -1;
         return [len, data];
     }
     // decode bool. if it is bool, return type
@@ -133,8 +138,8 @@ function VbsDecode() {
             headArr = this.getHead(arr);
         }
         head = head.concat(kindConst.vbsKind.VBS_LIST);
-        let content = this.unpackArray(value.slice(arr.length, value.length - 1));
-
+        let content = this.unpackContentArray(value.slice(arr.length, value.length-1)); // from 0x02 to 0x01
+        console.log("----Data---", content,)
         data =  data.concat(headArr, content);
         return data;       
     }
@@ -151,82 +156,103 @@ function VbsDecode() {
         }
         return this.decodeInterger(arr, headArr);
     }
-    // decode array content
-    this.unpackArray = function(obj) {
-        var vbsDncode = new VbsDecode();
-        let newArr = [];
-        let newObj = [];
-        let x;
-        let pos = 0, j=0;
-        for (let i=0;i<obj.length;i++) {
-            x = obj[i];
-            newArr[i] = x;
-            if (x < 0x80) { // judeg the type of the array
-                if (x == kindConst.vbsKind.VBS_BLOB) { // blob
-                    let n = (newArr[i-1]&0x7F);
-                    [,newObj[j++]] = decode(obj.slice(i-1, i+n+1)); // encode from i-1 to i+n+1, and the length is n
-                    i = i + n; // i wiil skip len
-                    pos = i + 1; // slice from next postion                   
-                } else if (x >= kindConst.vbsKind.VBS_INTEGER) { // float and integer
-                    if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER || ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER + 0x20)) {
-                        [,newObj[j++]] = decode(newArr.slice(pos, i+1));
-                        pos = i+1;
-                    }
-                } else if ((kindConst.vbsKind.VBS_STRING <= x) && (x <= 0x3F)) { // string
-                    let n = obj.length - newArr.length;
-                    let  len= (x & 0x1F); // get the string length
-                    [,newObj[j++]] = decode(obj.slice(i, i+len+1)); // need the identifier, so it start with pos-1
-                    i = i+len; // i wiil skip len-1
-                    pos = i+1; // slice from next postion
-                } else if (x >= kindConst.vbsKind.VBS_BOOL) {
-                    [,newObj[j++]] = decode(newArr.slice(i, i+1));
-                    pos++; // bool occupy one postion
-                    continue;
-                } else if ((x == kindConst.vbsKind.VBS_FLOATING) || (x == (kindConst.vbsKind.VBS_FLOATING + 1))) { 
-                    continue;
-                } else if ((x == kindConst.vbsKind.VBS_LIST)) { // Array
-                    let n = i;
-                    for (;n < obj.length;) { // Find the end of the array
-                       if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
-                            n++;
-                        } else {
-                            break;
-                        }
-                    }
-                    [,newObj[j++]] = decode(obj.slice(i, n+1)); // Decode from i to n, and the length is n-i 
-                    i = n; // i wiil skip len
-                    pos = i+1; // slice from next postion
-                } else if ((x == kindConst.vbsKind.VBS_DICT)) { // Object
-                    let n = i;
-                    for (;n < obj.length;) { // Find the end of the array
-                       if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
-                            n++;
-                        } else {
-                            break;
-                        }
-                    }
-                    [,newObj[j++]] = decode(obj.slice(i, n+1)); // Decode from i to n, and the length is n-i 
-                    i = n; // i wiil skip len
-                    pos = i+1; // slice from next postion
-                } else if (x == kindConst.vbsKind.VBS_NULL) { // null
-                    [,newObj[j++]] = decode(newArr.slice(i, i+1)); // get one byte
-                    pos++;
-                    continue;
-                } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= kindConst.vbsKind.VBS_DESCRIPTOR + 0x07)) {  //descriptor                 
-                    let descript = x;
-                    if (x != kindConst.vbsKind.VBS_DESCRIPTOR) {
-                        [,descript] = decode(newArr.slice(pos, i));
-                    }
-                    newObj[j++] = descript;
-                    i = i+len; // i wiil skip len-1
-                    pos = i+1; // slice from next postion
-                } 
-
-            }
+    this.unpackContentArray = function(value) {
+        console.log(4444, value)
+        let obj = [],newObj,arr;
+        let valueObj,j=0,m=0; 
+        let n = value.length;
+        for (let i=0;i<n;i++) {
+            if (value[i] == kindConst.vbsKind.VBS_LIST) { // child key->value
+                [newObj, i, j] = unpackHeadOfArray(value, n, i, j); 
+                obj[m++] = newObj;
+                // console.log("--new Obj-", obj,newObj)
+            } else {
+                console.log("_____", value.slice(i,n));
+                [j, valueObj] = decode(value.slice(i,n));  // get the value
+                i += j;
+                console.log("--value Object---",i,j,value[i],valueObj)
+                obj[m++] = valueObj;  // construct the object key->value
+            } 
 
         }
-        return newObj;
+        return obj;
     }
+    // find the content of object and decode it.
+    function unpackHeadOfArray(value, n, i, j) { // child object
+        console.log("--CCC--", value, n, i, j)
+        let newObj;
+        for (j = i;j<n;) { // get the object content   
+           if (value[j] != kindConst.vbsKind.VBS_TAIL) { // 
+               j++;
+           } else {
+            break;
+           }
+        }
+        console.log("---ccc--", value.slice(i,j+1), i, j);
+        [,newObj] = decode(value.slice(i,j+1)); // get the content from head(0x02) to tail(0x01)
+        i = j;  // next element from j+1 start
+        console.log("---ccd--", newObj, value[i]);
+        return [newObj, i, j];
+    }
+    // decode array content
+    // this.unpackArray = function(obj) {
+    //     let newArr = [];
+    //     let newObj = [];
+    //     // let pos=0, j=0;
+    //     let j = 0;
+        
+    //     // let n = 0;
+    //     // for (let i=0;i<obj.length-1;) { 
+    //     //     for (;n < obj.length;) { // Find the end of the array
+
+    //     //        if (obj[n] != kindConst.vbsKind.VBS_TAIL) { 
+    //     //             n++;
+    //     //         } else {
+    //     //             break;
+    //     //         }
+    //     //     }
+    //     //     console.log("--aaa---", obj.slice(i, n), i,obj[n-1],obj[n])
+    //     //     let [pos, x] = decode(obj.slice(i, n)); // Decode from i to n, and the length is n-i 
+    //     //     newObj[j++] = x;
+    //     //     i += pos+1; // i wiil skip len
+    //     //     console.log("--bb---", i,pos,x)
+    //     //     // pos = i+1; // slice from next postion
+
+    //     // }
+       
+    //     // obj = obj.slice(0,obj.length-1);
+    //     // while(obj.length != 0) {
+    //     //     let len = obj.length;
+    //     //     console.log("---AAA---", obj)
+    //     //     let [pos, x] = decode(obj); // Decode from i to n, and the length is n-i 
+    //     //     newObj[j++] = x;
+    //     //     console.log("-decode obj--", pos, obj, x)
+
+    //     //     obj = obj.slice(pos+1,len);
+    //     //     console.log("-BCC--", pos, obj)
+    //     // }
+
+    //     obj = obj.slice(0,obj.length-1);
+    //     while(obj.length != 0) {
+    //         console.log("--AA--", obj)
+    //         let [pos, x] = decode(obj); // Decode from i to n, and the length is n-i
+    //         console.log("--AB--", x, obj) 
+    //         newObj[j++] = x;
+    //         console.log("-BB--", pos, newObj)
+    //         obj = obj.slice(pos+1, obj.length);
+    //     }
+        
+    //     // if(obj.length != 0) {
+    //     //     obj = obj.slice(pos+1, obj.length);
+    //     //     if (obj.length != 0) {
+    //     //         [pos, x] = decode(obj); // Decode from i to n, and the length is n-i 
+    //     //         newObj[j++] = x;
+    //     //     }
+    //     // }
+    //     console.log("---CCC--", obj, newObj)
+    //     // console.log("-----BBBB---", obj.slice(0, obj.length-1), x)
+    //     return newObj;
+    // }
 
     // decode object
     this.decodeObject = function(value, arr) {
@@ -275,7 +301,7 @@ function VbsDecode() {
             break;
            }
         }
-        [,newObj] = decode(value.slice(i,j+1)); // get the content from head(0x02) to tail(0x01)
+        [,newObj] = decode(value.slice(i,j+1)); // get the content from head(0x03) to tail(0x01)
         i = j;  // next element from j+1 start
         return [newObj, i, j];
     }
@@ -294,8 +320,8 @@ function VbsDecode() {
 
 function decode(obj) {
     var vbsDncode = new VbsDecode();
-    if (typeof obj == 'undefined' ) {
-        return;
+    if (typeof obj == 'undefined' || typeof obj == 'function') {
+        return null;
     }
     let n = obj.length; 
     let x; 
@@ -309,6 +335,7 @@ function decode(obj) {
             if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
                 // i is the position of the identifier different type, record it to find the to recover the integer.
                 let data= vbsDncode.decodeInterger(obj, arr, false);
+                console.log("+++", i, data)
                 return [i, data]; 
             } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
                 return [i, vbsDncode.decodeInterger(obj, arr, true)];
@@ -319,6 +346,7 @@ function decode(obj) {
             } else if ((x == kindConst.vbsKind.VBS_LIST)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) { // array
                 return [i,vbsDncode.decodeArray(obj, arr)];
             } else if ((x == kindConst.vbsKind.VBS_DICT)&&(obj[n - 1] == kindConst.vbsKind.VBS_TAIL)) { // key->value
+                // console.log("-----decode Array-",i, obj)
                 return [i,vbsDncode.decodeObject(obj, arr)];
             } else if (x == kindConst.vbsKind.VBS_BLOB) { // blob
                 let [len, blobData] = vbsDncode.decodeBlob(obj, arr);
