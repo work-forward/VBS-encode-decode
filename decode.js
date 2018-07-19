@@ -2,17 +2,17 @@ const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
 const commonFun = require('./common.js');
 const limitCost  =    require('./limits.js');
-let emptyString = "";
+let   NoError = "";
 /**
  *  @decode class
  */
 function VbsDecode() {
-    let head = {
+    let head = {  // g
         kind: 0,
         descriptor: 0,
         num: 0
     };
-    let Decoder = {
+    VbsDecode.prototype.Decoder = {
         pos: 0,
         maxStrLength: 0,
         maxDepth: limitCost.MaxDepth,
@@ -20,232 +20,11 @@ function VbsDecode() {
         finished: false,
         err: "",
         encodeData: [],
-        decodeData: [],
         maxLength: 0,
         hStart: 0,
         hEnd: 0
     };
-    let dec = Object.assign({}, Decoder);
-    /**
-     *  @decode interger
-     *
-     *  {param: value, the array of the encode}
-     *  {param: arr, the identifier blob type}
-     *  {param: negative, the sign of Positive and negative}
-     *  return: the number of decode
-     */
-    this.decodeInterger = function(value, arr, negative = false) {
-        return this.unpackInt(arr, negative);
-    }
-    /**
-     *  @unpack interger
-     *
-     *  {param: v, the array of the encode}
-     *  {param: negative, the identifier integer type}
-     *  return: the number of decode
-     */
-    this.unpackInt = function(v, negative) { // unpack the int
-        let n = v.length;
-        let m = '';
-        let mon = '';
-        // identifier、number 
-        if (n == 1) {   // Only one byte
-            m = (v & 0x1F).toString(2);
-            if ((v & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Pos number plus the symbol
-                m = '-' + m;
-            }
-            return parseInt(m, 2);
-        }
-        for (let i = 0;i < n; i++) { // mut byte splice v in order to get one byte every time
-            
-            if (i == n - 1) {
-                if (v[i] == kindConst.vbsKind.VBS_BLOB) // blob
-                    break;
-                m = (v[i]  & 0x1F).toString(2);
-                if ((v[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) {
-                    m = '-' + m;
-                }
-            } else {  // final one byte
-                m = (v[i] & 0x7F).toString(2);
-                if (m.length < 7 && i != n -1) {
-                   m = padZero(m);
-                }
-            }
-            mon = m + mon;
-        }
-        if (negative == true) { // symbol
-            mon = '-' + mon;
-        }
-        return parseInt(mon, 2);
-    }
-    /**
-     *  @decode float
-     *
-     *  {param: value, the array of the encode}
-     *  {param: arr, the identifier blob type}
-     *  {param: negative, the sign of Positive and negative}
-     *  return {len: the length of mantissa and exponent};{num: decode the float}
-     */
-    this.decodeFloat = function(value, arr, negative) { // unpack the float
-        if (arr.length == 0) {
-            return;
-        }
-        let mantissa = this.unpackFloat(arr, negative);
-       
-         let [arrRemain,eNeg] = this.getExponent(value, arr); // get value - arr, that is the exponent code
-
-        let exponent = this.decodeInterger(value, arrRemain, eNeg); // get exponent  by value code
-
-        let num = floatOperate.makeFloat(mantissa, exponent); 
-
-        return num;
-    }
-    /**
-     *  @get exponent encode sequence
-     *
-     *  {param: value, the array of the encode}
-     *  {param: arr, the identifier blob type}
-     *  {param: negative, the sign of Positive and negative}
-     *  return {remain: exponent encode};{true/false refer to Positive and negative number}
-     */
-    this.getExponent = function(value, arr) {
-        let remain = [];
-        let len = arr.length;
-        let j=0;
-        for(let i=len;i<value.length;i++) {
-            remain[j++] = value[i]; 
-            if ((value[i] & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // int +
-                return [remain,false];
-            } 
-            if ((value[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // int -
-                return [remain,true];
-            }
-        }
-        return ["cannot decode the type"];
-    }
-    /**
-     *  @get arr1 subtract arr2
-     *
-     *  {param: arr1, array}
-     *  {param: arr2, array}
-     *  return {arr: arr1 - arr2}
-     */
-    this.getRemain = function(arr1, arr2) { 
-        let arr = [];
-        let len = arr1.length - arr2.length;
-        for (let i=0; i < len; i++) {
-            arr[i] = arr1[arr2.length + i];
-        }
-        return arr;
-    }
-     /**
-     *  @unpack float
-     *
-     *  {param: v, the array of the encode}
-     *  {param: negative, the identifier integer type}
-     *  return: the number of decode
-     */
-    this.unpackFloat = function(v, negative) {
-        let n = v.length;
-        let m = '';
-        let mon = '';
-        for (let i = 0;i < n - 1; i++) {
-            m = (v[i] & 0x7F).toString(2);
-            if (m.length < 7 && i != n -2 && n != 1) { // less than 7 bit, pad the m with 0 to 7 bit
-               m = padZero(m);
-            }
-            mon = m + mon;
-        }
-        if (negative == true) {
-            mon = '-' + mon;
-        }
-        return parseInt(mon, 2);
-    }
-    /**
-     *  @decode blob
-     *
-     *  {param: value, the array of the encode}
-     *  {param: arr, the identifier blob type}
-     *  return {len: the blob length};{data: decode the blob data}
-     */
-    this.decodeBlob = function(value, arr) { 
-        let len = this.decodeInterger(value, arr);
-        if (len < 0) {
-            return;
-        }
-        
-        let arrRemain = this.getRemain(value, arr); // get value - arr
-
-        arrRemain = arrRemain.slice(0,len);
-
-        if(len != arrRemain.length) {
-            return;
-        }
-        let byteArr = new ArrayBuffer(arrRemain.length); 
-        let vbsCode = new DataView(byteArr);
-        for(let i = 0; i < arrRemain.length; i++) {
-          vbsCode.setUint8(i, arrRemain[i]);
-        }
-        let data = commonFun.ab2String(byteArr);
-
-        // len = arr.length + len -1;
-        return data;
-    }
-    /**
-     *  @decode bool
-     *
-     *  {param: value, the array of the encode}
-     *  {param: type, true or false}
-     *  return {type: true/false}
-     */
-    this.decodeBool = function(value, type) {
-        return type;
-    }
-    /**
-     *  @decode string
-     *
-     *  {param: value, the array of the encode}
-     *  {param: arr, the type encode}
-     *  return {valueLen: the length of the string};{str: the decode string}
-     */
-    this.decodeString = function(value, arr) {
-        let len = this.decodeInterger(value, arr);
-
-        let arrRemain = this.getRemain(value, arr); // value - arr
-
-        let ctnArr = this.getContent(arrRemain,len); // spilt arrRemain the len when it is object
-        
-        if (len != ctnArr.length) {
-            return;
-        }
-        let str = commonFun.byteToString(ctnArr);
-        
-        return str;
-    }
-    /**
-     *  @get the array that split value from 0 to len-1
-     *
-     *  {param: value, the array of the encode}
-     *  {len: the length that need to split}
-     *  
-     */
-    this.getContent = function(value,len) {
-        let arr = [];
-        for(let i=0;i<len;i++) {
-            arr[i] = value[i];
-        }
-        return arr;
-    }
-    /**
-     *  @special descripe decode
-     *
-     *  {param: value, the array of the encode}
-     *  {arr: the descriptor of data}
-     *  return the decode descriptor
-     */
-    this.decodeDescriptor = function(value, arr) {        
-        return this.decodeInterger(value, arr);
-    }
+    let dec =  Object.assign({}, this.Decoder);
     /**
      *  @array decode
      *
@@ -253,26 +32,24 @@ function VbsDecode() {
      *  else decode the content
      *  return the decode data
      */
-    this.decodeArray = function() {
+    this._decodeArray = function() {
         dec.depth++;
         if (dec.depth > dec.maxDepth) {
             dec.err = "Depth Overflow Error{"+dec.maxDepth+"}";
             return;
         }
         let back_arr = [];
-        for (let i=0;dec.err == emptyString;i++) {
-            if (this.unpackIfTail()) {
+        for (let i=0;dec.err == NoError;i++) {
+            if (this._unpackIfTail()) {
                 break;
             }
-            let x = this.decodeInterface();
-            if (dec.err != emptyString) {
+            let x = this.decodeObject();
+            if (dec.err != NoError) {
                 return;
             }
             back_arr = commonFun.arrCopy(back_arr, x);
         }
-
-        dec.decodeData = back_arr;
-        return dec.decodeData;
+        return back_arr;
     }
     /**
      *  @key/value decode
@@ -281,7 +58,7 @@ function VbsDecode() {
      *  else decode the k and v
      *  return the decode data
      */
-    this.decodeObject = function() {
+    this._decodeKV = function() {
         dec.depth++;
         if (dec.depth > dec.maxDepth) {
             dec.err = "Depth Overflow Error" + dec.maxDepth;
@@ -289,13 +66,13 @@ function VbsDecode() {
         }
         let ms; // int、string/value
         let kind = 0;
-        for (;dec.err == emptyString;) {
-            if (this.unpackIfTail()) {
+        for (;dec.err == NoError;) {
+            if (this._unpackIfTail()) {
                 break;
             }
-            let k = this.decodeInterface();
-            let v = this.decodeInterface();
-            if (dec.err != emptyString) {
+            let k = this.decodeObject();
+            let v = this.decodeObject();
+            if (dec.err != NoError) {
                 return;
             }
             let kk = k;
@@ -306,30 +83,15 @@ function VbsDecode() {
                     case 'string':
                          ms = {};   // string/value
                          break;
-                    case 'boolean':
-                    case 'string':
-                    case 'undefined':
-                    case 'null':
-                    case 'function':
-                    case 'object':
-                         dec.err = "Invalid Unmarshal Error";
-                         return;
                     default:
-                         dec.err = "vbs: can't reach here!";
+                         dec.err = "Invalid Unmarshal Error!";
                          return;
                 }
             } else if ((typeof kk) != kind) {
                 dec.err = "Invalid Unmarshal Error :" + kk;
                 return;
             }
-            switch (typeof kind) {
-                case 'number':
-                case 'string':
-                     ms[kk] = v;
-                     break;
-                default:
-                    dec.err = "vbs: can't reach here!";
-            }
+            ms[kk] = v;
         }
         return ms;
     }
@@ -337,7 +99,8 @@ function VbsDecode() {
      *  @init the dec
      *
      */
-    this.decodeInit = function() {
+    this.decodeInit = function(value) {
+        dec.encodeData = [...value];
         dec.maxLength = (dec.encodeData == "undefined" ? 0: dec.encodeData.length);
         let maxString = Number.MAX_VALUE;
         if (dec.maxLength > 0 && maxString >= dec.maxLength) {
@@ -350,15 +113,10 @@ function VbsDecode() {
      *  {param: value, the array of the encode}
      *  return: true/false, judge whether it is the tail 
      */
-    this.decodeInterface = function(value) {
-        if (typeof value != "undefined") {
-            dec.encodeData = [...value]; // copy value
-            this.decodeInit(); 
-        } 
+    this.decodeObject = function(value) {
         let x;
-        let temHead = this.unpackHead();
-        let head = commonFun.deepClone(temHead);
-        if (dec.err != emptyString) {
+        head = this._unpackHead();
+        if (dec.err != NoError) {
             return;
         }
         switch(head.kind) {
@@ -366,34 +124,38 @@ function VbsDecode() {
                 x = head.num;
                 break;
            case kindConst.vbsKind.VBS_STRING: // string
-                let buf = this.getBytes(head.num);
-                if (dec.err == emptyString) {
+                let buf = this._getBytes(head.num);
+                if (dec.err == NoError) {
                     x = buf;
                 }
                 break;
-           case kindConst.vbsKind.VBS_FLOATING: // float
-                let head2 = this.unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
-                if (dec.err == emptyString) {
-                    x = floatOperate.makeFloat(head.num, head2.num); 
+           case kindConst.vbsKind.VBS_FLOATING: // float 
+                let num = head.num;
+                head = this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
+                if (dec.err == NoError) {
+                    x = floatOperate.makeFloat(num, head.num); 
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                let blobData = this.takeBytes(head.num);      
-                if (dec.err == emptyString) {
+                let blobData = this._takeBytes(head.num);      
+                if (dec.err == NoError) {
                     x = new Uint8Array(blobData); 
                 }
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
-                x =  this.decodeArray();  
+                x =  this._decodeArray();  
                 break;
            case kindConst.vbsKind.VBS_DICT: // key/value
-                x = this.decodeObject();
+                x = this._decodeKV();
                 break;
            case kindConst.vbsKind.VBS_NULL: // null
                 x = null;
                 break;
            default:
-                dec.err = "Invalid Vbs Error";
+                dec.err = "Invalid Vbs Error!";
+        }
+        if (dec.err != NoError) {
+            throw new Error(dec.err);
         }
         return x;
     }
@@ -403,13 +165,13 @@ function VbsDecode() {
      *  decode the encodeData
      *  return the decode string
      */
-    this.getBytes = function(number) {
+    this._getBytes = function(number) {
         let num = number;
-        if (num > this.left() || num > dec.maxStrLength) {
+        if (num > this._left() || num > dec.maxStrLength) {
             dec.err = "Invalid Vbs Error";
             return;
         }
-        let str = this.getContent(dec.encodeData.slice(dec.hStart,dec.hEnd),num);
+        let str = this._getContent(dec.encodeData.slice(dec.hStart,dec.hEnd),num);
         dec.hStart += num; 
         return commonFun.ab2String(str);
     }
@@ -419,25 +181,38 @@ function VbsDecode() {
      *  decode blob encodeData
      *  return the decode blob
      */
-    this.takeBytes = function(number) {
+    this._takeBytes = function(number) {
         let num = number;
-        if (num > this.left() || num > dec.maxStrLength) {
-            dec.err = "";
-            return emptyString;
+        if (num > this._left() || num > dec.maxStrLength) {
+            dec.err = "Invalid Vbs Error";
+            return NoError;
         }
-        let blob = this.getContent(dec.encodeData.slice(dec.hStart,dec.hEnd), num);
+        let blob = this._getContent(dec.encodeData.slice(dec.hStart,dec.hEnd), num);
         dec.hStart += num; // move 
         return blob;
     }
-    
+    /**
+     *  @get the array that split value from 0 to len-1
+     *
+     *  {param: value, the array of the encode}
+     *  {len: the length that need to split}
+     *  
+     */
+    this._getContent = function(arr,len) {
+        let newArr = [];
+        for(let i=0;i<len;i++) {
+            newArr[i] = arr[i];
+        }
+        return newArr;
+    }
     /**
      *  @unpack the tail
      *
      *  return: true/false, whether it is the tail 
      */
-    this.unpackIfTail = function() {
-        if (dec.err == emptyString) {
-            let data = this.headBuffer();
+    this._unpackIfTail = function() {
+        if (dec.err == NoError) {
+            let data = dec.encodeData.slice(dec.hStart, dec.hEnd);
             if (data.length > 0 && (dec.depth > 0) && (data[0] == kindConst.vbsKind.VBS_TAIL)) {
                 dec.hStart++;
                 dec.depth--;
@@ -452,9 +227,9 @@ function VbsDecode() {
      *  {param: kind, identifier different type}
      *  return: head, the struct that contain {kind, number,negative}
      */
-    this.unpackHeadKind = function(kind) {
-        head = this.unpackHead();
-        if (dec.err == emptyString) {
+    this._unpackHeadKind = function(kind) {
+        head = this._unpackHead();
+        if (dec.err == NoError) {
             if (head.kind != kind) {
                 dec.err = "Mismatched Kind Error{Expect:"+kind+"Got:"+head.kind+"}";
             } else if (head.descriptor != 0) {
@@ -468,13 +243,15 @@ function VbsDecode() {
      *
      *  return: head, the struct that contain {kind, number,negative}
      */
-    this.unpackHead = function() {
-       if (dec.err != emptyString) {
+    this._unpackHead = function() {
+       if (dec.err != NoError) {
             return;
        }
-       let headData = this.headBuffer();
 
-       let n = headData.length;
+       dec.hEnd = dec.maxLength;
+       let headData = dec.encodeData.slice(dec.hStart, dec.hEnd);
+   
+       let n = dec.hEnd - dec.hStart;
        let negative = false;
        let kd = 0;
        let descriptor = 0 >>> 0;
@@ -517,7 +294,7 @@ function VbsDecode() {
                             }
                         }
                         continue loop1;
-                    } else if (!bitmapTestSingle(x)) {
+                    } else if (!_bitmapTestSingle(x)) {
                         dec.err = "Invalid VBS Error";
                         return;
                     }
@@ -527,7 +304,7 @@ function VbsDecode() {
                     num = (x & 0x7F) >>> 0;  
                     let mon = num.toString(2); 
                     if (mon.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
-                           mon = padZero(mon);
+                           mon = _padZero(mon);
                     }
                     for(;;) {
                        if (i >= n) {
@@ -540,14 +317,14 @@ function VbsDecode() {
                           break;
                        }
                        x &= 0x7F;
-                       let left = 64 - shift;
-                       if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                       let _left = 64 - shift;
+                       if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
                             dec.err = "Number Over flow Error";
                             return;
                        }
                        m = x.toString(2);
                        if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
-                           m = padZero(m);
+                           m = _padZero(m);
                         }
                        mon = m + mon;
                        num = parseInt(mon, 2);
@@ -559,14 +336,14 @@ function VbsDecode() {
                         kd = (x & 0x60);
                         x &= 0x1F;
                         if(x != 0) {
-                            let left = 64 - shift;
-                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                            let _left = 64 - shift;
+                            if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
                                 dec.err = "Number Over flow Error";
                                 return;
                             }
                             m = x.toString(2);
                             if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
-                               m = padZero(m);
+                               m = _padZero(m);
                             }
                             mon = m + mon;
                             num = parseInt(mon, 2);
@@ -583,14 +360,14 @@ function VbsDecode() {
                     } else if (x >= kindConst.vbsKind.VBS_DESCRIPTOR && (x < kindConst.vbsKind.VBS_BOOL)) {
                         x &= 0x07;
                         if(x != 0) {
-                            let left = 64 - shift;
-                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                            let _left = 64 - shift;
+                            if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
                                 dec.err = "Number Over flow Error";
                                 return;
                             }
                             m = x.toString(2);
                             if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
-                               m = padZero(m);
+                               m = _padZero(m);
                             }
                             mon = m + mon;
                             num = parseInt(mon, 2);
@@ -608,7 +385,7 @@ function VbsDecode() {
                             return;
                         }
                         continue loop1;
-                    } else if (!bitmapTestMulti(x)) {
+                    } else if (!_bitmapTestMulti(x)) {
                         dec.err = "Number Over flow Error";
                         return;
                     }
@@ -631,51 +408,6 @@ function VbsDecode() {
         dec.err = "Invalid Vbs Error";
         return;
 
-    }
-    /**
-     *  @split the encode Data
-     *
-     *  return: dec.encodeData
-     */
-    this.headBuffer = function() {
-        let hsize = dec.hEnd - dec.hStart;
-
-        if (hsize < 16 && !dec.finished && dec.err == emptyString) {
-            if (hsize > 0) {
-                dec.encodeData = dec.encodeData.slice(dec.hStart,dec.hEnd); 
-            }
-            dec.hStart = 0;
-            dec.hEnd   = hsize;
-            
-            let need = this.left();
-
-            if(need > dec.encodeData.length) {
-                need = dec.encodeData.length;
-            }
-            let chunk = dec.encodeData.slice(dec.hEnd, need);
-            let k = chunk.length;
-            if (k > 0) {
-                dec.hEnd += parseInt(k);
-                dec.pos += k;
-                if(dec.maxLength > 0 && dec.pos >= dec.maxLength) {
-                    dec.finished = true;
-                }
-            } else {
-                dec.err = "Fail";
-            }
-        }
-        return dec.encodeData.slice(dec.hStart, dec.hEnd);
-    }
-    /**
-     *  @get the end of the encodeData
-     * 
-     *  return: the postion 
-     */
-    this.left = function() {
-        if (dec.maxLength > 0) {
-            return (dec.maxLength - dec.pos) + parseInt(dec.hEnd - dec.hStart);
-        }
-        return limitCost.MaxInt64;
     }
     let bitmapSingle = [
             0xFB00C00E, /* 1111 1011 1111 1111  1000 0000 0000 1110 */
@@ -712,10 +444,21 @@ function VbsDecode() {
             0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
             0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
     ];
-    function bitmapTestSingle(x) {
+    /**
+     *  @get the end of the encodeData
+     * 
+     *  return: the postion 
+     */
+    this._left = function() {
+        if (dec.maxLength > 0) {
+            return (dec.maxLength - dec.pos) + parseInt(dec.hEnd - dec.hStart);
+        }
+        return limitCost.MaxInt64;
+    }
+    function _bitmapTestSingle(x) {
         return (bitmapSingle[x>>3] & (1 << (x & 0x1F))) != 0;
     }
-    function bitmapTestMulti(x) {
+    function _bitmapTestMulti(x) {
         return (bitmapMulti[x>>3] & (1 << (x & 0x1F))) != 0;
     }
     /**
@@ -723,7 +466,7 @@ function VbsDecode() {
      * if length of m is less than 7, pad it to 7
      *  return: dec.encodeData
      */
-    function padZero(m) {
+    function _padZero(m) {
         let len = m.length;
         for(; len <= 7; len++) {
             if (7-len > 0){
@@ -740,46 +483,13 @@ function VbsDecode() {
 */
 function decode(dataArr) {
     var vbsDncode = new VbsDecode();
-    let n = dataArr.length; 
-    let x; 
-    let arr = [];
-    let descript = 0;
-    for (let i=0; i<n;i++) {
-        if (dataArr[i] < 0x80) {
-            x = dataArr[i];
-            arr[i] = x;
-            if ((x & 0x60) == kindConst.vbsKind.VBS_INTEGER) { // Int +
-                return vbsDncode.decodeInterger(dataArr, arr, false);
-            } else if ((x & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // Int -
-                return vbsDncode.decodeInterger(dataArr, arr, true);
-            } else if (x == kindConst.vbsKind.VBS_FLOATING) { // float +
-                return vbsDncode.decodeFloat(dataArr, arr, false);
-            } else if (x == kindConst.vbsKind.VBS_FLOATING + 1) { // float -
-               return vbsDncode.decodeFloat(dataArr, arr, true);
-            } else if ((x == kindConst.vbsKind.VBS_LIST)) { // array
-                return vbsDncode.decodeInterface(dataArr);
-            } else if ((x == kindConst.vbsKind.VBS_DICT)) { // key->value
-                return vbsDncode.decodeInterface(dataArr);
-            } else if (x == kindConst.vbsKind.VBS_BLOB) { // blob
-                return vbsDncode.decodeBlob(dataArr, arr);
-            } else if (x == kindConst.vbsKind.VBS_BOOL) { // bool false
-                return vbsDncode.decodeBool(dataArr, false);
-            } else if (x == kindConst.vbsKind.VBS_BOOL + 1) { // bool true
-                return vbsDncode.decodeBool(dataArr, true);
-            } else if ((x & 0x20) == kindConst.vbsKind.VBS_STRING) { // string
-                return vbsDncode.decodeString(dataArr, arr);
-            } else if (x == kindConst.vbsKind.VBS_NULL) { // null
-                return null;
-            } else if ((kindConst.vbsKind.VBS_DESCRIPTOR <= x) && (x <= 0x1F)) { // descriptor
-                descript = vbsDncode.decodeDescriptor(dataArr, arr);
-                arr[i] = descript;
-            } else {
-                return "Cannot resolve the encode data";
-            }
-        } else {
-            arr[i] = dataArr[i];
-        }
+    try {
+        vbsDncode.decodeInit(dataArr); 
+        return vbsDncode.decodeObject();
+    } catch (e) {
+        console.error(e.name + ": " + e.message);
     }
+    
 }
 /**
   *   @decode data 
@@ -797,10 +507,6 @@ function vbsParse(opt) {
        return decode(dataArr);    
        
 }
-/**
-  *   @decode data interface
-  *   Description: Decode u 
-*/
 function decodeVBS(u) {
     return vbsParse(u);
 }

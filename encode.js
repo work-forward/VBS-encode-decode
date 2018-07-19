@@ -11,16 +11,16 @@ function VbsEncode() {
      */
     this.encodeInterger = function(value){  // isE: judge whether it is exponent
         if (value < 0) {
-                 this.packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER + 0x20, -value); 
+                 this._packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER + 0x20, -value); 
            } else {
-                this.packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER, value);
+                this._packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER, value);
            }
            return this.bp;
     }
      /**
      *  @pack the head
      */
-    this.packIntOrStringHead = function(kind, num) {
+    this._packIntOrStringHead = function(kind, num) {
         let n = 0;
         let len = this.bp.length;
         this.bp = _intShift(this.bp, n + len, kind, num); 
@@ -60,15 +60,15 @@ function VbsEncode() {
       *  @encode float
       *  split value to expo and mantissa
       *  and then pack expo with encodeInterger
-      *  pack mantissa with packKind
+      *  pack mantissa with _packKind
      */
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
 
         if (mantissa < 0) {
-              this.packKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
+              this._packKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
-              this.packKind(kindConst.vbsKind.VBS_FLOATING, mantissa);
+              this._packKind(kindConst.vbsKind.VBS_FLOATING, mantissa);
            }
            this.encodeInterger(expo);
            return this.bp;
@@ -76,7 +76,7 @@ function VbsEncode() {
     /**
       *  @pack num and kind
      */
-    this.packKind = function(kind, num) {
+    this._packKind = function(kind, num) {
         let n = 0;
         this.bp = _floatShift(kind, num);
         n = this.bp.length;
@@ -118,7 +118,7 @@ function VbsEncode() {
       *   pack the blob data 
      */
     this.encodeBlob = function(value) {
-        this.packKind(kindConst.vbsKind.VBS_BLOB, value.length);
+        this._packKind(kindConst.vbsKind.VBS_BLOB, value.length);
         let n = this.bp.length;
         for (let i=0;i < value.length; i++) {
             this.bp[n+i] = value[i];
@@ -145,7 +145,7 @@ function VbsEncode() {
       *   pack the data
      */
     this.encodeString = function(value) {
-        this.packIntOrStringHead(kindConst.vbsKind.VBS_STRING, value.length);
+        this._packIntOrStringHead(kindConst.vbsKind.VBS_STRING, value.length);
         let n = this.bp.length;
         let bytes = commonFun.stringToByte(value);
         this.bp = this.bp.concat(bytes); 
@@ -187,7 +187,7 @@ function VbsEncode() {
     this.encodeObject = function(value) {
         let head = kindConst.vbsKind.VBS_DICT; // head identity
         let arr = [];
-        let obj = packObject(value); // pack the content by key/value
+        let obj = _packObject(value); // pack the content by key/value
         let tail = kindConst.vbsKind.VBS_TAIL; 
         this.bp = arr.concat(head,obj, tail); // head+obj+tail  
         return this.bp;
@@ -195,7 +195,7 @@ function VbsEncode() {
     /**
       *   @pack key and value
      */
-    function packObject(obj) {
+    function _packObject(obj) {
       let arr = [];
       let data = [];
       let j=0;
