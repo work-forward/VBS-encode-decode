@@ -465,7 +465,7 @@ function VbsDecode() {
     }
     /**
      *  @unpack the head
-
+     *
      *  return: head, the struct that contain {kind, number,negative}
      */
     this.unpackHead = function() {
@@ -477,8 +477,8 @@ function VbsDecode() {
        let n = headData.length;
        let negative = false;
        let kd = 0;
-       let descriptor = 0 >>>0;
-       let num = 0 >>>0;
+       let descriptor = 0 >>> 0;
+       let num = 0 >>> 0;
        let i = 0; 
        loop1:
             for(;i < n;) {
@@ -634,8 +634,7 @@ function VbsDecode() {
     }
     /**
      *  @split the encode Data
-     
-     * 
+     *
      *  return: dec.encodeData
      */
     this.headBuffer = function() {
@@ -669,7 +668,7 @@ function VbsDecode() {
     }
     /**
      *  @get the end of the encodeData
-     
+     * 
      *  return: the postion 
      */
     this.left = function() {
@@ -786,7 +785,7 @@ function decode(dataArr) {
   *   @decode data 
   *   Description: Decode Binary array to array, and decode it 
 */
-function decodeVBS(opt) {
+function vbsParse(opt) {
         if (opt.length <= 0) {
                 return;
         }  

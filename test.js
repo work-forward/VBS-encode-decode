@@ -6,46 +6,46 @@ const vbsDecode = require('./decode.js');
 //     let ss = vbsDecode.decodeVBS(myVbs);
 //     console.log(u, ss)
 // }
-// testVbsKeyVal()
-// function testVbsKeyVal() {
-//     // let u = [12,34,78,"string", null, 'undefied'];
-//     // let u = {"a": "dfdf"} 
-//     // let u = {"a": "key","js":'23',"djd":"dsdh"};
-//     // let u = {89:"key","shj":"dfn","23":"dfhjdf"}
-//     let cc = {
-//     	"k": "edf",
-//     	"l": "ddf",
-//     	"sd": 1234,
-//     	"sdf":"dfjk"
-//     }
-//     // let u = {"s":cc};
-//     let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sjdksd":"df","dfhjdf":"dbfhdfd","93":"dfhdf"};
-//     let myVbs = vbsEncode.encodeVBS(u);
-//     // console.log(myVbs)
-//     let ss = vbsDecode.decodeVBS(myVbs);
-//     console.log(u, myVbs, ss)
-// }
-testVbsArray()
-function testVbsArray() {
-    // let u = [7823,8912,[892,1289],92389238293232320,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
-	// let u = [23,34,[52,372],56,56]; 
-	// let u = [[78,[90,79]],[892323,[9023,323]]]
-    // let u = [78,[2,9],90,[89]];
-	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
-    // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
-    let u = [8, new Uint8Array([15,68,12]),67,[167,89.78,89.37,new Uint8Array([89,2389,3489,89.8]),89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-    // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
-    // let u = [[78,[90,79]],[892323,[909023,78232323]]];
-    // let u = [892323,[909023,78232323]];
-    // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
-    // let u = ["shdjsd"]
-    // let u = [89.347,89]
-    // let u = [new Uint8Array([15,68,12])];
+testVbsKeyVal()
+function testVbsKeyVal() {
+    // let u = [12,34,78,"string", null, 'undefied'];
+    // let u = {"a": "dfdf"} 
+    // let u = {"a": "key","js":'23',"djd":"dsdh"};
+    // let u = {89:"key","shj":"dfn","23":"dfhjdf"}
+    let cc = {
+    	"k": "edf",
+    	"l": "ddf",
+    	"sd": 1234,
+    	"sdf":"dfjk"
+    }
+    // let u = {"s":cc};
+    let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sjdksd":"df","dfhjdf":"dbfhdfd","93":"dfhdf"};
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
     let ss = vbsDecode.decodeVBS(myVbs);
     console.log(u, myVbs, ss)
 }
+// testVbsArray()
+// function testVbsArray() {
+//     // let u = [7823,8912,[892,1289],92389238293232320,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
+// 	// let u = [23,34,[52,372],56,56]; 
+// 	// let u = [[78,[90,79]],[892323,[9023,323]]]
+//     // let u = [78,[2,9],90,[89]];
+// 	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
+//     // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
+//     let u = [8, new Uint8Array([15,68,12]),67,[167,89.78,89.37,new Uint8Array([89,2389,3489,89.8]),89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+//     // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
+//     // let u = [[78,[90,79]],[892323,[909023,78232323]]];
+//     // let u = [892323,[909023,78232323]];
+//     // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
+//     // let u = ["shdjsd"]
+//     // let u = [89.347,89]
+//     // let u = [new Uint8Array([15,68,12])];
+//     let myVbs = vbsEncode.encodeVBS(u);
+//     // console.log(myVbs)
+//     // let ss = vbsDecode.decodeVBS(myVbs);
+//     // console.log(u, myVbs, ss)
+// }
 // testVbsBatArray()
 // function testVbsBatArray() {
 //     for (let i=0;i<100;) {
