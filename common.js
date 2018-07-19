@@ -59,8 +59,8 @@ function isEmpty(value) {
   return (Array.isArray(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0);
 }
 // string to ArrayBuffer,
-// {param: string}
-function arrb2String(buf) {
+// {param: buf/array}
+function ab2String(buf) {
    return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
 
@@ -75,11 +75,44 @@ function string2Arrb(str) {
   return buf;
 }
 
+function deepClone(obj) {
+  // test whether it is array or object
+  // let isArr = Object.prototype.toString.call(obj) === '[object Array]';
+  let isArr = Array.isArray(obj);
+  let isJson = Object.prototype.toString.call(obj) === '[object Object]';
+  if (isArr) {
+    // clone array
+    let newObj = [];
+    for (let i = 0; i < obj.length; i++) {
+      newObj[i] = deepClone(obj[i]);
+    }
+    return newObj;
+  } else if (isJson) {
+    // clone object
+    let newObj = {};
+    for (let i in obj) {
+      newObj[i] = deepClone(obj[i]);
+    }
+    return newObj;
+  }
+  // direct return if it isn't reference type
+  return obj;
+};
+// put obj to arr1
+function arrCopy(arr1, obj) {
+	if (typeof obj != "undefined") {
+		arr1.push(obj);
+	}
+	return arr1;
+}
+
 module.exports = {
     isInteger,
     stringToByte,
     byteToString,
     isEmpty,
-    arrb2String,
-    string2Arrb
+    ab2String,
+    string2Arrb,
+    deepClone,
+    arrCopy
 }

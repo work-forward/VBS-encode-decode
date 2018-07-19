@@ -44,6 +44,7 @@ function FloatOperate() {
     }
 
     this._makeFloat = function(mantissa, expo) {
+        // console.log(mantissa, expo)
         let num, negative = false;
         if (mantissa == 0) {
         	if (expo < 0) {

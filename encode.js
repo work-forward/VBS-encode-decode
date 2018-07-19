@@ -4,6 +4,11 @@ const vbsDecode = require('./decode.js');
 const commonFun = require('./common.js');
 function VbsEncode() {
     VbsEncode.prototype.bp = [];
+    /**
+     *  @pack the integer
+
+     *  return: this.bp
+     */
     this.encodeInterger = function(value){  // isE: judge whether it is exponent
         if (value < 0) {
                  this.packIntOrStringHead(kindConst.vbsKind.VBS_INTEGER + 0x20, -value); 
@@ -12,13 +17,19 @@ function VbsEncode() {
            }
            return this.bp;
     }
-
+     /**
+     *  @pack the head
+     */
     this.packIntOrStringHead = function(kind, num) {
         let n = 0;
         let len = this.bp.length;
         this.bp = _intShift(this.bp, n + len, kind, num); 
     }
-    // splice num according to byte and  encode every byte
+    /**
+      *  @split num according to byte and  encode every byte
+      *   the highest position of every byte set up to 1 except the last byte
+      *   the late byte and kind conduct  or operartion
+     */
     function _intShift(bp = [], n, kind, num) {
         let numString = num.toString(2);
         let arr = [];
@@ -45,10 +56,15 @@ function VbsEncode() {
         arr[n] = kind | num;  // operate (VBS_INTEGER | num[num.length - 1])
         return arr;
     }
-
+    /**
+      *  @encode float
+      *  split value to expo and mantissa
+      *  and then pack expo with encodeInterger
+      *  pack mantissa with packKind
+     */
     this.encodeFloat = function(value){  
         let [expo, mantissa] = floatOperate.breakFloat(value);
-        // console.log(111, mantissa, expo)
+
         if (mantissa < 0) {
               this.packKind(kindConst.vbsKind.VBS_FLOATING + 1, -mantissa); 
            } else {
@@ -57,13 +73,19 @@ function VbsEncode() {
            this.encodeInterger(expo);
            return this.bp;
     }
+    /**
+      *  @pack num and kind
+     */
     this.packKind = function(kind, num) {
         let n = 0;
         this.bp = _floatShift(kind, num);
         n = this.bp.length;
         this.bp[n] = kind; // encode identifier
     }
-    // splice num according to byte and  encode every byte
+    /**
+      *  @split num according to byte and  encode every byte
+      *   the highest position of every byte set up to 1 except the last byte
+     */
     function _floatShift(kind, num) {
         let numString = num.toString(2);
         let n = 0;
@@ -90,7 +112,11 @@ function VbsEncode() {
         return arr;
     }
 
-    // Blob encode
+    /**
+      *  @blob decode
+      *   pack the type of value  and the length of value
+      *   pack the blob data 
+     */
     this.encodeBlob = function(value) {
         this.packKind(kindConst.vbsKind.VBS_BLOB, value.length);
         let n = this.bp.length;
@@ -99,7 +125,11 @@ function VbsEncode() {
         }
         return this.bp;
     }
-    // bool encode
+    /**
+      *  @bool decode
+      *   pack the true/false
+      *   pack the bool type
+     */
     this.encodeBool = function(value) {
         let b = kindConst.vbsKind.VBS_BOOL;
         let n = 0;
@@ -109,22 +139,31 @@ function VbsEncode() {
         this.bp[n] = b;
         return this.bp;
     }
-    // string encode
+    /**
+      *   @pack string
+      *   pack the type of the value and the length of the value
+      *   pack the data
+     */
     this.encodeString = function(value) {
-        // console.log(222, value)
         this.packIntOrStringHead(kindConst.vbsKind.VBS_STRING, value.length);
         let n = this.bp.length;
         let bytes = commonFun.stringToByte(value);
         this.bp = this.bp.concat(bytes); 
         return this.bp;
     }
-    // null, function
+    /**
+      *  @pack bool null, function
+      *   pack the null/undefine/function
+     */
     this.encodeNull = function(value) {
         let n = 0;
         this.bp[n] = kindConst.vbsKind.VBS_NULL;
         return this.bp;
     }
-    // Array
+    /**
+      *  @bool null, function
+      *   pack the null/undefine/function
+     */
     this.encodeArray = function(value) {
         let n = 0;
         let head = kindConst.vbsKind.VBS_LIST;
@@ -139,7 +178,12 @@ function VbsEncode() {
         this.bp = arr3.concat(head,arr2, tail); // head+arr2+tail
         return this.bp;
     }
-    // encode object key/value
+    /**
+      *   @pack object key/value
+      *   pack the type of the value
+      *   pack the data
+      *   pack the tail
+     */
     this.encodeObject = function(value) {
         let head = kindConst.vbsKind.VBS_DICT; // head identity
         let arr = [];
@@ -148,7 +192,9 @@ function VbsEncode() {
         this.bp = arr.concat(head,obj, tail); // head+obj+tail  
         return this.bp;
     }
-    // pack the object
+    /**
+      *   @pack key and value
+     */
     function packObject(obj) {
       let arr = [];
       let data = [];
@@ -164,7 +210,10 @@ function VbsEncode() {
       return data;
     }
 }
-
+/**
+  *   @judge the obj type
+  *    according to corresponding type to encode the data
+*/
 function vbsStringify(obj) {
         var vbsEncode = new VbsEncode();
         if (obj === null) {
@@ -189,7 +238,7 @@ function vbsStringify(obj) {
             case 'object':
                  if (Object.prototype.toString.call(obj) == '[object Uint8Array]') { // blob
                     return vbsEncode.encodeBlob(obj);
-                 } else if (Object.prototype.toString.call(obj) == '[object Array]') { // list
+                 } else if (Object.prototype.toString.call(obj) == '[object Array]') { // array
                     return vbsEncode.encodeArray(obj);
                  } else { // key/value
                     return vbsEncode.encodeObject(obj);
@@ -197,6 +246,10 @@ function vbsStringify(obj) {
         }
 }
 // apply vbs encode function
+/**
+  *   @encode data interface
+  *   Description: Encode u to strCode, and turn strCode into Binary array
+*/
 function encodeVBS(u) { 
     let strCode = new vbsStringify(u);  // get encode vbs
     let byteArr = new ArrayBuffer(strCode.length); 
@@ -210,11 +263,16 @@ function encodeVBS(u) {
 module.exports = {
     encodeVBS
 }
+// function testVbsKeyVal() {
+//     let u = {"a": "key","js":'23',"dj":{"djd":"dsdh","hu":{"djd":"dsdh"}}};
+//     let myVbs = encodeVBS(u);
+// }
 // testVbsKeyVal()
 // function testVbsKeyVal() {
 //     // let u = [12,34,78,"string", null, 'undefied'];
-//     // let obj = {33: "dfdf"} 
+//     // let u = {"a": "dfdf"} 
 //     // let u = {"a": "key","js":'23',"djd":"dsdh"};
+//     // let u = {89:"key","shj":"dfn","23":"dfhjdf"}
 //     let cc = {
 //     	"k": "edf",
 //     	"l": "ddf",
@@ -222,22 +280,33 @@ module.exports = {
 //     	"sdf":"dfjk"
 //     }
 //     // let u = {"s":cc};
-//     let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sds":new Uint8Array([15,68,12]),"sjdksd":"df","sg": new Uint8Array([78,90])};
+//     let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sjdksd":"df","dfhjdf":"dbfhdfd","93":"dfhdf"};
 //     let myVbs = encodeVBS(u);
 //     // console.log(myVbs)
 //     var ss = vbsDecode.decodeVBS(myVbs);
 //     console.log(u, myVbs, ss)
 // }
-testVbsArray()
-function testVbsArray() {
-	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
-    // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
-    let u = [8, new Uint8Array([15,68,12]),67,[167,89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-    let myVbs = encodeVBS(u);
-    // console.log(myVbs)
-    let ss = vbsDecode.decodeVBS(myVbs);
-    console.log(u, myVbs, ss)
-}
+// testVbsArray()
+// function testVbsArray() {
+//     // let u = [7823,8912,[892,1289],92389238293232320,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
+// 	// let u = [23,34,[52,372],56,56]; 
+// 	// let u = [[78,[90,79]],[892323,[9023,323]]]
+//     // let u = [78,[2,9],90,[89]];
+// 	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
+//     // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
+//     let u = [8, new Uint8Array([15,68,12]),67,[167,89.78,89.37,new Uint8Array([89,2389,3489,89.8]),89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+//     // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
+//     // let u = [[78,[90,79]],[892323,[909023,78232323]]];
+//     // let u = [892323,[909023,78232323]];
+//     // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
+//     // let u = ["shdjsd"]
+//     // let u = [89.347,89]
+//     // let u = [new Uint8Array([15,68,12])];
+//     let myVbs = encodeVBS(u);
+//     // console.log(myVbs)
+//     // let ss = vbsDecode.decodeVBS(myVbs);
+//     // console.log(u, myVbs, ss)
+// }
 // testVbsBatArray()
 // function testVbsBatArray() {
 //     for (let i=0;i<100;) {
@@ -252,15 +321,22 @@ function testVbsArray() {
 // console.log([23,34,45,{"key":34,"value":56}])
 // testVbsString()
 // function testVbsString() {
-//     let u = "sdjsdh,sdhjsd, njsds,dfdf,jsd,12344,dfhj"; 
+//     // let u = [89,23,902323,3403493,450459,23902,34903];
+//     // let u = ["89","skdj","sdhjs","sdjksd","dshf","dfjk",89,100,290,"sdhj"];  8023238934,237,[823],23,3489343,892323
+//     // let u = [12.89,89.8,24,89,"str","sdhj",89.8,80.6,-1.1,-1.25] ,[3748434,8923892],895,8923,80
+//     // let u = [12,[9,6],80,[89],90,67]
+//     // let u = [[8023238934,237,[823],23,3489343,892323]]
+//     let u = [7823,8912,[892,1289],90,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
+//     // let u = [null];
+//     // let u = -1.367;
 //     let myVbs = encodeVBS(u);
 //     // console.log(myVbs)
-//     var ss = vbsDecode.decodeVBS(myVbs);
-//     console.log(u, '----' ,ss)
+//     // var ss = vbsDecode.decodeVBS(myVbs);
+//     // console.log(u, '----' )
 // }
 // testVbsBool()
 // function testVbsBool() {
-//     let u = false; 
+//     let u = true; 
 //     let myVbs = encodeVBS(u);
 //     // console.log(myVbs)
 //     var ss = vbsDecode.decodeVBS(myVbs);
@@ -286,9 +362,11 @@ function testVbsArray() {
 //     console.log(u, ss)  
 // }
 // function testVbsFloat() {
-//     // let u = -1334348934834.3454343488495845;  // small number test
-//     let u = Math.pow(2, 1022) - 1  // big number test
+//     // let u = -1282.8923298283232;  // small number test
+//     // let u = Math.pow(2, 1022) - 1  // big number test
 //     // let u = NaN;
+//     let u = 784545454233478334434.34874323;
+//     // let u = 127823
 //     // let u = 0;
 //     let myCode = encodeVBS(u);
 //     let ss = vbsDecode.decodeVBS(myCode);
