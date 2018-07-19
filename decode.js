@@ -3,7 +3,9 @@ const floatOperate =  require('./float.js');
 const commonFun = require('./common.js');
 const limitCost  =    require('./limits.js');
 let emptyString = "";
-
+/**
+ *  @decode class
+ */
 function VbsDecode() {
     let head = {
         kind: 0,
@@ -523,7 +525,7 @@ function VbsDecode() {
                     let shift = 7;
                     let m = '';
                     num = (x & 0x7F) >>> 0;  
-                    let mon = num.toString(2); // -------//
+                    let mon = num.toString(2); 
                     if (mon.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
                            mon = padZero(mon);
                     }
@@ -714,13 +716,11 @@ function VbsDecode() {
     function bitmapTestSingle(x) {
         return (bitmapSingle[x>>3] & (1 << (x & 0x1F))) != 0;
     }
-
     function bitmapTestMulti(x) {
         return (bitmapMulti[x>>3] & (1 << (x & 0x1F))) != 0;
     }
     /**
-     *  @pad 0
-     
+     *  @pad 0 to make the length of m to 7 bit 
      * if length of m is less than 7, pad it to 7
      *  return: dec.encodeData
      */
@@ -735,8 +735,10 @@ function VbsDecode() {
     }
     
 }
-
-
+/**
+  *   @decode dataArr 
+  *   Description: judge the type of dataArr and  decode according to the type
+*/
 function decode(dataArr) {
     var vbsDncode = new VbsDecode();
     let n = dataArr.length; 
@@ -780,7 +782,10 @@ function decode(dataArr) {
         }
     }
 }
-
+/**
+  *   @decode data 
+  *   Description: Decode Binary array to array, and decode it 
+*/
 function decodeVBS(opt) {
         if (opt.length <= 0) {
                 return;
@@ -794,12 +799,12 @@ function decodeVBS(opt) {
        
 }
 /**
-  *   @encode data interface
-  *   Description: Encode u to strCode, and turn strCode into Binary array
+  *   @decode data interface
+  *   Description: Decode u 
 */
-// function decodeVBS(u) {
-//     return vbsParse(u);
-// }
+function decodeVBS(u) {
+    return vbsParse(u);
+}
 module.exports = {
     decodeVBS
 }
