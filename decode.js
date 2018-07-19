@@ -118,7 +118,7 @@ function VbsDecode() {
                 return [remain,false];
             } 
             if ((value[i] & 0x60) == (kindConst.vbsKind.VBS_INTEGER + 0x20)) { // int -
-                return [remain,false];
+                return [remain,true];
             }
         }
         return ["cannot decode the type"];
@@ -287,7 +287,7 @@ function VbsDecode() {
             dec.err = "Depth Overflow Error" + dec.maxDepth;
             return;
         }
-        let ms; // int, string/value
+        let ms; // int、string/value
         let kind = 0;
         for (;dec.err == emptyString;) {
             if (this.unpackIfTail()) {
@@ -348,7 +348,7 @@ function VbsDecode() {
      /**
      *  @decode obj
      *  {param: value, the array of the encode}
-     *  return: true/false, whether it is the tail 
+     *  return: true/false, judge whether it is the tail 
      */
     this.decodeInterface = function(value) {
         if (typeof value != "undefined") {
@@ -386,10 +386,10 @@ function VbsDecode() {
            case kindConst.vbsKind.VBS_LIST: // array
                 x =  this.decodeArray();  
                 break;
-           case kindConst.vbsKind.VBS_DICT:
+           case kindConst.vbsKind.VBS_DICT: // key/value
                 x = this.decodeObject();
                 break;
-           case kindConst.vbsKind.VBS_NULL:
+           case kindConst.vbsKind.VBS_NULL: // null
                 x = null;
                 break;
            default:
