@@ -43,7 +43,7 @@ function VbsDecode() {
             if (this._unpackIfTail()) {
                 break;
             }
-            let x = this.decodeObject();
+            let x = this.decodeObj();
             if (dec.err != NoError) {
                 return;
             }
@@ -70,8 +70,8 @@ function VbsDecode() {
             if (this._unpackIfTail()) {
                 break;
             }
-            let k = this.decodeObject();
-            let v = this.decodeObject();
+            let k = this.decodeObj();
+            let v = this.decodeObj();
             if (dec.err != NoError) {
                 return;
             }
@@ -113,7 +113,7 @@ function VbsDecode() {
      *  {param: value, the array of the encode}
      *  return: true/false, judge whether it is the tail 
      */
-    this.decodeObject = function(value) {
+    this.decodeObj = function(value) {
         let x;
         head = this._unpackHead();
         if (dec.err != NoError) {
@@ -485,7 +485,7 @@ function decode(dataArr) {
     var vbsDncode = new VbsDecode();
     try {
         vbsDncode.decodeInit(dataArr); 
-        return vbsDncode.decodeObject();
+        return vbsDncode.decodeObj();
     } catch (e) {
         console.error(e.name + ": " + e.message);
     }
