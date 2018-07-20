@@ -58,7 +58,7 @@ function byteToString(arr) {
 function isEmpty(value) {
   return (Array.isArray(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0);
 }
-// string to ArrayBuffer,
+// ArrayBuffer  to string,
 // {param: buf/array}
 function ab2String(buf) {
    return String.fromCharCode.apply(null, new Uint8Array(buf));

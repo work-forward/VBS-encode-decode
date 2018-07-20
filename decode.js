@@ -103,21 +103,15 @@ function VbsDecoder() {
      *
      */
     this.decodeInit = function(value, i) {
-        this.dec.encodeData = [...value];
-        this.dec.maxLength = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);
-        
-        let maxString = Number.MAX_VALUE;
-        if (this.dec.maxLength > 0 && maxString >= this.dec.maxLength) {
-            maxString = this.dec.maxLength - 1;
-        }
+        this.dec.encodeData = value;
+        this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);      
+ 
         if (typeof i == "undefined" || i > this.dec.maxLength) {
             this.dec.err = "Input Parameter Error: " + i;
         }
         if (commonFun.isInteger(i) && i > 0) {
             this.dec.hStart = i;
         } 
-
-        this.dec.maxStrLength = maxString;
     }
      /**
      *  @decode obj
@@ -126,7 +120,8 @@ function VbsDecoder() {
      */
     this.decodeObj = function() {
         let x;
-        this._unpackHead();       
+        this._unpackHead(); 
+        // console.log("head: ", this.head)    
         if (this.dec.err != NoError) {
             return;
         }
@@ -143,13 +138,14 @@ function VbsDecoder() {
                 break;
            case kindConst.vbsKind.VBS_FLOATING: // float 
                 let num = this.head.num;
-                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
+                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER); 
                 if (this.dec.err == NoError) {
                     x = floatOperate.makeFloat(num, this.head.num); 
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
                 let blobData = this._takeBytes(this.head.num);      
+                // x = new Uint8Array(this.dec.encodeData, hStart, num)
                 if (this.dec.err == NoError) {
                     x = new Uint8Array(blobData); 
                 }
@@ -176,7 +172,7 @@ function VbsDecoder() {
      */
     this._getBytes = function(number) {
         let num = number;
-        if (num > this._left() || num > this.dec.maxStrLength) {
+        if (num > this._left()) {
             this.dec.err = "Invalid Vbs Error";
             return;
         }
@@ -192,7 +188,7 @@ function VbsDecoder() {
      */
     this._takeBytes = function(number) {
         let num = number;
-        if (num > this._left() || num > this.dec.maxStrLength) {
+        if (num > this._left()) {
             this.dec.err = "Invalid Vbs Error";
             return NoError;
         }
@@ -221,8 +217,7 @@ function VbsDecoder() {
      */
     this._unpackIfTail = function() {
         if (this.dec.err == NoError) {
-            let data = this.dec.encodeData.slice(this.dec.hStart, this.dec.hEnd);
-            if (data.length > 0 && (this.dec.depth > 0) && (data[0] == kindConst.vbsKind.VBS_TAIL)) {
+            if (this.dec.hStart < this.dec.hEnd && (this.dec.depth > 0) && (this.dec.encodeData[this.dec.hStart] == kindConst.vbsKind.VBS_TAIL)) {
                 this.dec.hStart++;
                 this.dec.depth--;
                 return true;
@@ -255,14 +250,14 @@ function VbsDecoder() {
        if (this.dec.err != NoError) {
             return;
        }
-       this.dec.hEnd = this.dec.maxLength;
-       let headData = this.dec.encodeData.slice(this.dec.hStart, this.dec.hEnd);
-       let n = this.dec.hEnd - this.dec.hStart;
+       
+       let headData = this.dec.encodeData;
+       let n = this.dec.hEnd;
        let negative = false;
        let kd = 0;
-       let descriptor = 0 >>> 0;
-       let num = 0 >>> 0;
-       let i = 0; 
+       let descriptor = 0;
+       let num = 0;
+       let i = this.dec.hStart; 
        loop1:
             for(;i < n;) {
                 let x = headData[i++];
@@ -310,7 +305,7 @@ function VbsDecoder() {
                     num = (x & 0x7F) >>> 0;  
                     let mon = num.toString(2); 
                     if (mon.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
-                           mon = _padZero(mon);
+                        mon = _padZero(mon);
                     }
                     for(;;) {
                        if (i >= n) {
@@ -408,7 +403,8 @@ function VbsDecoder() {
                 if (negative) {
                     this.head.num = -this.head.num;
                 }
-                this.dec.hStart += i;
+
+                this.dec.hStart = i; // i point to the index of headData
                 return;
         }
         this.dec.err = "Invalid Vbs Error";
@@ -456,10 +452,7 @@ function VbsDecoder() {
      *  return: the postion 
      */
     this._left = function() {
-        if (this.dec.maxLength > 0) {
-            return this.dec.maxLength + parseInt(this.dec.hEnd - this.dec.hStart);
-        }
-        return limitConst.MaxInt64;
+         return this.dec.hEnd - this.dec.hStart;
     }
     function _bitmapTestSingle(x) {
         return (bitmapSingle[x>>3] & (1 << (x & 0x1F))) != 0;
