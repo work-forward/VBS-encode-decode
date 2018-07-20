@@ -59,7 +59,7 @@ function VbsDecoder() {
     this._decodeKV = function() {
         this.dec.depth++;
         if (this.dec.depth > this.dec.maxDepth) {
-            this.dec.err = "Depth Overflow Error " + this.dec.maxDepth;
+            this.dec.err = "Depth Overflow Error: " + this.dec.maxDepth;
             return;
         }
         let ms; // int、string/value
@@ -323,8 +323,8 @@ function VbsDecoder() {
                           break;
                        }
                        x &= 0x7F;
-                       let _left = 64 - shift;
-                       if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
+                       let left = 64 - shift;
+                       if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
                             this.dec.err = "Number Over flow Error";
                             return;
                        }
@@ -342,8 +342,8 @@ function VbsDecoder() {
                         kd = (x & 0x60);
                         x &= 0x1F;
                         if(x != 0) {
-                            let _left = 64 - shift;
-                            if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
+                            let left = 64 - shift;
+                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
                                 this.dec.err = "Number Over flow Error";
                                 return;
                             }
@@ -366,8 +366,8 @@ function VbsDecoder() {
                     } else if (x >= kindConst.vbsKind.VBS_DESCRIPTOR && (x < kindConst.vbsKind.VBS_BOOL)) {
                         x &= 0x07;
                         if(x != 0) {
-                            let _left = 64 - shift;
-                            if (_left <= 0 || (_left < 7 && x >= (1 << (_left >>> 0)))) {
+                            let left = 64 - shift;
+                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
                                 this.dec.err = "Number Over flow Error";
                                 return;
                             }
@@ -469,7 +469,7 @@ function VbsDecoder() {
     }
     /**
      *  @pad 0 to make the length of m to 7 bit 
-     * if length of m is less than 7, pad it to 7
+     *  if length of m is less than 7, pad it to 7
      *  return: this.dec.encodeData
      */
     function _padZero(m) {
