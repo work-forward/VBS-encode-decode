@@ -279,7 +279,7 @@ function VbsDecoder() {
                         if (x != kindConst.vbsKind.VBS_BLOB) { // 0x1B
                             kd = x & 0xFE;
                         }
-                        if (x <= kindConst.vbsKind.VBS_BOOL + 1) { // 0x1B+1
+                        if (x <= kindConst.vbsKind.VBS_BOOL + 1) { // 0x18+1
                             num = (x & 0x01) >>> 0;
                         }
                     } else if (x >= kindConst.vbsKind.VBS_DESCRIPTOR) {
