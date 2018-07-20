@@ -7,7 +7,7 @@ The encodeVBS interface in encode.js implement the VBS encode.It will encode u t
 The decodeVBS interface in decode.js implement the VBS decode. It will decode myVbs to the original types.You can use as following.
 
        const vbsDecode = require('./decode.js');
-       let ss = vbsDecode.decodeVBS(myVbs, 0);
+       let ss = vbsDecode.decodeVBS(myVbs, i); // i should be a appropriate numbers
 
 Run in Browser.
 It can also run in Browser. You just do as following.
