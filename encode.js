@@ -152,7 +152,7 @@ function VbsEncoder() {
         return this.bp;
     }
     /**
-      *  @pack bool null, function
+      *  @pack  null, undefine, function
       *   pack the null/undefine/function
      */
     this.encodeNull = function(value) {
