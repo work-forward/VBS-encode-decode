@@ -1,13 +1,13 @@
 const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
-const commonFun = require('./common.js');
+const commonFun =     require('./common.js');
 const limitCost  =    require('./limits.js');
 let   NoError = "";
 /**
  *  @decode class
  */
 function VbsDecode() {
-    let head = {  // g
+    let head = {  // global variable in VbsDecode
         kind: 0,
         descriptor: 0,
         num: 0
