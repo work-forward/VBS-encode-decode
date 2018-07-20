@@ -7,7 +7,7 @@ function FloatOperate() {
     
     this._breakFloat = function(v) {
         var expo, mantissa;
-        let [s, e, m] = floatToNumber(v);
+        let [s, e, m] = _floatToNumber(v);
         let negative = s ? true : false;
         for (let i=0; i< 52; i++) {
 	            if (m % 1 ==0) {  
@@ -25,20 +25,20 @@ function FloatOperate() {
         }
         return [expo, mantissa];
     }
-    function assembleFloat(sign, exponent, mantissa)
+    function _assembleFloat(sign, exponent, mantissa)
     {
         return [sign, exponent, mantissa];
     }
-    function floatToNumber(flt)
+    function _floatToNumber(flt)
     {
         if (isNaN(flt)) // Special case: NaN
-        	return assembleFloat(0, flt_NAN, 0); // Mantissa is nonzero for NaN
+        	return _assembleFloat(0, flt_NAN, 0); // Mantissa is nonzero for NaN
         var sign = (flt < 0) ? 1 : 0;
         flt = Math.abs(flt); 
         var exponent = Math.floor(Math.log(flt) / Math.LN2);
         // 此处微调，原先：exponent > 127 | exponent < -126
         if (exponent > 1023 | exponent < -1022) // Special case: +-Infinity (and huge numbers)
-        	return assembleFloat(sign, flt_INF, 0); // Mantissa is zero for +-Infinity
+        	return _assembleFloat(sign, flt_INF, 0); // Mantissa is zero for +-Infinity
         var mantissa = flt / Math.pow(2, exponent);
         return [sign, exponent, mantissa];
     }

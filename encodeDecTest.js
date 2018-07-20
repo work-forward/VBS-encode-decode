@@ -59,11 +59,10 @@ function testVbsArray() {
     // let u = ["shdjsd"]
     // let u = [89.347,89]
     // let u = [new Uint8Array([15,68,12])];
-    // let u = [12,34,78,"string", null, 'undefied'];
-    let u = []
+    let u = [12,34,78,"string", null, 'undefied'];
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
-    let ss = vbsDecode.decodeVBS(myVbs);
+    let ss = vbsDecode.decodeVBS(myVbs,0);
     console.log(u, myVbs, ss)
 }
 // testVbsBatArray()

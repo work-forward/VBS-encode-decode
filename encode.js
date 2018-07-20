@@ -2,8 +2,8 @@ const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
 const vbsDecode = require('./decode.js');
 const commonFun = require('./common.js');
-function VbsEncode() {
-    VbsEncode.prototype.bp = [];
+function VbsEncoder() {
+    VbsEncoder.prototype.bp = [];
     /**
      *  @pack the integer
 
@@ -215,7 +215,7 @@ function VbsEncode() {
   *    according to corresponding type to encode the data
 */
 function vbsStringify(obj) {
-        var vbsEncode = new VbsEncode();
+        var vbsEncode = new VbsEncoder();
         if (obj === null) {
             return vbsEncode.encodeNull(obj);
         }
@@ -256,7 +256,6 @@ function encodeVBS(u) {
     for(let i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
-    console.log("###$$$", strCode.toString())
     return byteArr;
 }
 

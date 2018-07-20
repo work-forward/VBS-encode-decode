@@ -17,39 +17,8 @@ const VBS_DESCRIPTOR_MAX	= 0x7fff
 
 const VBS_SPECIAL_DESCRIPTOR	= 0x8000
 
-var kindNames = [
-	"INVALID",      /*  0 */
-    "TAIL",         /*  1 */
-    "LIST",         /*  2 */
-    "DICT",         /*  3 */
-    "NULL",         /*  4 */
-    "FLOATING",     /*  5 */
-    "DECIMAL",      /*  6 */
-    "BOOL",         /*  7 */
-    "STRING",       /*  8 */
-    "INTEGER",      /*  9 */
-    "BLOB",         /* 10 */
-    "DESCRIPTOR"   /* 11 */
-]
-
-var kindIdx = [
-	0,  1,  2,  3,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  4,
-    11,  0,  0,  0,  0,  0,  0, 0,  7,  0,  0, 10,  6,  0,  5,  0,
-    8,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,
-    0,  0,  0,  0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,
-    9
-]
-
-function KindString(k) {
-	if (k >= 0 && k <= vbsKind.VBS_INTEGER) {
-		return kindNames[kindIdx[k]];
-	}
-	return kindNames[0];
-}
-
 module.exports = {
 	vbsKind,
 	VBS_DESCRIPTOR_MAX,
-	VBS_SPECIAL_DESCRIPTOR,
-	KindString
+	VBS_SPECIAL_DESCRIPTOR
 }
