@@ -1,7 +1,7 @@
 const kindConst  =    require('./kind.js');
 const floatOperate =  require('./float.js');
 const commonFun =     require('./common.js');
-const limitCost  =    require('./limits.js');
+const limitConst  =    require('./limits.js');
 let   NoError = "";
 /**
  *  @decode class
@@ -14,7 +14,7 @@ function VbsDecoder() {
     };
     VbsDecoder.prototype.dec = {
         maxStrLength: 0,
-        maxDepth: limitCost.MaxDepth,
+        maxDepth: limitConst.MaxDepth,
         depth: 0,
         err: "",
         encodeData: [],
@@ -395,8 +395,8 @@ function VbsDecoder() {
                         this.dec.err = "Number Over flow Error";
                         return;
                     }
-                    if (num > limitCost.MaxInt64) {
-                        if (!(kd == kindConst.vbsKind.VBS_INTEGER && negative && num == limitCost.MaxInt64)) {
+                    if (num > limitConst.MaxInt64) {
+                        if (!(kd == kindConst.vbsKind.VBS_INTEGER && negative && num == limitConst.MaxInt64)) {
                             this.dec.err = "Number Over flow Error";
                             return;
                         }
@@ -459,7 +459,7 @@ function VbsDecoder() {
         if (this.dec.maxLength > 0) {
             return this.dec.maxLength + parseInt(this.dec.hEnd - this.dec.hStart);
         }
-        return limitCost.MaxInt64;
+        return limitConst.MaxInt64;
     }
     function _bitmapTestSingle(x) {
         return (bitmapSingle[x>>3] & (1 << (x & 0x1F))) != 0;

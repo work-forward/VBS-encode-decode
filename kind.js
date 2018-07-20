@@ -1,9 +1,9 @@
 // identifier different type
 const vbsKind = {
 	VBS_TAIL: 0x01,
-	VBS_LIST: 0x02,
+	VBS_LIST: 0x02,			
 	VBS_DICT: 0x03,
-	VBS_NULL: 0x0F,
+	VBS_NULL: 0x0F,		     // 0000 1111
 	VBS_DESCRIPTOR: 0x10,         // 0001 0xxx
 	VBS_BOOL: 0x18,         // 0001 100x 	0=F 1=T
 	VBS_BLOB: 0x1B,           // binary

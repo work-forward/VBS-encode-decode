@@ -74,12 +74,8 @@ function testVbsKeyVal() {
     }
     // let sa = vbsDecode.decodeVBS(byteArr);
     // console.log(111, sa)
-    try {
-        let ss = vbsDecode.decodeVBS(byteArr,5);
-        console.log(222, ss)
-    } catch(e) {
-        console.error(e.name + ": " + e.message);
-    }
+    let ss = vbsDecode.decodeVBS(byteArr,0);
+    console.log(222, ss)
     
     
     // let uu = vbsDecode.decodeVBS(byteArr,ss.endPosition);
