@@ -135,25 +135,25 @@ const vbsDecode = require('./decode.js');
 //     // let v1 = dv.getUint8(0);
 //     // console.log(v1)
 // }
-// testVbsFloat()
-// function testVbsFloat() {
-//     // for (let u = 1;u < 50;) {
-//     //    let myVbs = vbsEncode.encodeVBS(u);
-//     //    let ss = vbsDecode.decodeVBS(myVbs);
-//     //    console.log(u, myVbs, ss)
-//     //    u += Math.random();
-//     // } 
-//     for (let u = 10;u < 433555556756565;) {
-//        let myVbs = vbsEncode.encodeVBS(u);
-//        let ss = vbsDecode.decodeVBS(myVbs);
-//        console.log(u, myVbs, ss)
-//        u *= 51;
-//     } 
-//     // for ( u = 10.5;u < 428543.44189;) {
-//     //    let myVbs = vbsEncode.encodeVBS(u);
-//     //    let ss = vbsDecode.decodeVBS(myVbs, 0);
-//     //    console.log(u, myVbs, ss)
-//     //    u += 100.6898;
-//     // }
+testVbsFloat()
+function testVbsFloat() {
+    // for (let u = 1;u < 50;) {
+    //    let myVbs = vbsEncode.encodeVBS(u);
+    //    let ss = vbsDecode.decodeVBS(myVbs);
+    //    console.log(u, myVbs, ss)
+    //    u += Math.random();
+    // } 
+    for (let u = 10;u < 433555556756565;) {
+       let myVbs = vbsEncode.encodeVBS(u);
+       let ss = vbsDecode.decodeVBS(myVbs,0);
+       console.log(u, myVbs, ss)
+       u *= 51;
+    } 
+    // for ( u = 10.5;u < 428543.44189;) {
+    //    let myVbs = vbsEncode.encodeVBS(u);
+    //    let ss = vbsDecode.decodeVBS(myVbs, 0);
+    //    console.log(u, myVbs, ss)
+    //    u += 100.6898;
+    // }
     
-// }
+}
