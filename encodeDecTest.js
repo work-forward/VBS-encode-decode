@@ -1,9 +1,10 @@
 const vbsEncode = require('./encode.js');
 const vbsDecode = require('./decode.js');
+// testVbsKeyVal()
 // function testVbsKeyVal() {
 //     let u = {"a": "key","js":'23',"78":"sdh","dj":{"djd":"dsdh","hu":{"djd":"dsdh"}}};
 //     let myVbs = vbsEncode.encodeVBS(u);
-//     let ss = vbsDecode.decodeVBS(myVbs);
+//     let ss = vbsDecode.decodeVBS(myVbs,0);
 //     console.log(u, ss)
 // }
 // testVbsKeyVal()
@@ -22,7 +23,7 @@ const vbsDecode = require('./decode.js');
 //     let u = {"df":{"sd":"dsf"},"s":cc,"dfj":"dfjk","sjdksd":"df","dfhjdf":"dbfhdfd","93":"dfhdf"};
 //     let myVbs = vbsEncode.encodeVBS(u);
 //     // console.log(myVbs)
-//     let ss = vbsDecode.decodeVBS(myVbs);
+//     let ss = vbsDecode.decodeVBS(myVbs,0);
 //     console.log(u, myVbs, ss)
 // }
 // testVbsBatchKeyVal()
@@ -38,33 +39,33 @@ const vbsDecode = require('./decode.js');
 //         let u = {"df":{"sd":i},"s":cc,"dfj":"dfjk","sjdksd":"df","dfhjdf":"dbfhdfd","93":"dfhdf"};
 //         let myVbs = vbsEncode.encodeVBS(u);
 //         // console.log(myVbs)
-//         let ss = vbsDecode.decodeVBS(myVbs);
+//         let ss = vbsDecode.decodeVBS(myVbs, 0);
 //         i++;
 //         console.log(u, myVbs, ss)
 //     }
 // }
-testVbsArray()
-function testVbsArray() {
-    // let u = [7823,8912,[892,1289],92389238293232320,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
-	// let u = [23,34,[52,372],56,56]; 
-	// let u = [[78,[90,79]],[892323,[9023,323]]]
-    // let u = [78,[2,9],90,[89]];
-	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
-    // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
-    // let u = [8, new Uint8Array([15,68,12]),67.89,"sdsaf",[167,89.78,89.37,new Uint8Array([89,2389,3489,89.8]),89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
-    // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
-    // let u = [[78,[90,79]],[892323,[909023,78232323]]];
-    // let u = [892323,[909023,78232323]];
-    // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
-    // let u = ["shdjsd"]
-    // let u = [89.347,89]
-    // let u = [new Uint8Array([15,68,12])];
-    let u = [12,34,78,"string", null, 'undefied'];
-    let myVbs = vbsEncode.encodeVBS(u);
-    // console.log(myVbs)
-    let ss = vbsDecode.decodeVBS(myVbs,0);
-    console.log(u, myVbs, ss)
-}
+// testVbsArray()
+// function testVbsArray() {
+//     // let u = [7823,8912,[892,1289],92389238293232320,237,[823],23,[3489343,892323,892323],[3748434,8923892],895,8923,80];
+// 	// let u = [23,34,[52,372],56,56]; 
+// 	// let u = [[78,[90,79]],[892323,[9023,323]]]
+//     // let u = [78,[2,9],90,[89]];
+// 	// let u = [23,34,52372,56,56,true,false,343,56,"dflkd","df",4,568,89434]; 
+//     // let u = [16,new Uint8Array([15,68,12]),1212,128723,2389]; 
+//     // let u = [8, new Uint8Array([15,68,12]),67.89,"sdsaf",[167,89.78,89.37,new Uint8Array([89,2389,3489,89.8]),89],"sdhj",89,"hdfdf",new Uint8Array([190,68,12])];
+//     // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
+//     // let u = [[78,[90,79]],[892323,[909023,78232323]]];
+//     // let u = [892323,[909023,78232323]];
+//     // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
+//     // let u = ["shdjsd"]
+//     // let u = [89.347,89]
+//     // let u = [new Uint8Array([15,68,12])];
+//     let u = [12,34,78,"string", null, 'undefied'];
+//     let myVbs = vbsEncode.encodeVBS(u);
+//     // console.log(myVbs)
+//     let ss = vbsDecode.decodeVBS(myVbs,0);
+//     console.log(u, myVbs, ss)
+// }
 // testVbsBatArray()
 // function testVbsBatArray() {
 //     for (let i=0;i<100;) {
@@ -89,7 +90,7 @@ function testVbsArray() {
 //     // let u = -1.367;
 //     let myVbs = vbsEncode.encodeVBS(u);
 //     // console.log(myVbs)
-//     // let ss = vbsDecode.decodeVBS(myVbs);
+//     // let ss = vbsDecode.decodeVBS(myVbs, 0);
 //     // console.log(u, '----' )
 // }
 // testVbsBool()
@@ -107,7 +108,7 @@ function testVbsArray() {
 //          u = new Uint8Array([1,i,3,4,5,6,230,255]); 
 //         let myVbs = vbsEncode.encodeVBS(u);
 //         i++;
-//         let ss = vbsDecode.decodeVBS(myVbs);
+//         let ss = vbsDecode.decodeVBS(myVbs,0);
 //         console.log(u, ss)
 //     }  
 // }
@@ -127,7 +128,7 @@ function testVbsArray() {
 //     let u = 1278.2963
 //     // let u = 0;
 //     let myCode = vbsEncode.encodeVBS(u);
-//     let ss = vbsDecode.decodeVBS(myCode);
+//     let ss = vbsDecode.decodeVBS(myCode, 0);
 //     console.log(u, myCode, ss)
 //     // let dv = new DataView(myVbs); 
 //     // // 从第1个字节读取一个8位无符号整数
@@ -150,7 +151,7 @@ function testVbsArray() {
 //     } 
 //     // for ( u = 10.5;u < 428543.44189;) {
 //     //    let myVbs = vbsEncode.encodeVBS(u);
-//     //    let ss = vbsDecode.decodeVBS(myVbs);
+//     //    let ss = vbsDecode.decodeVBS(myVbs, 0);
 //     //    console.log(u, myVbs, ss)
 //     //    u += 100.6898;
 //     // }

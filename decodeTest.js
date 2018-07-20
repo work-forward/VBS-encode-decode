@@ -64,9 +64,9 @@ function testVbsKeyVal() {
     // let arr = [2,76,162,64,206,64,38,115,116,114,105,110,103,15,40,117,110,100,101,102,105,101,100,1]; 
     // let arr = [231,153,162,233,222,228,159,129,30,167,96]; // 1278.2963
     // let arr = [2,231,153,162,233,222,228,159,129,30,167,96,162,64,1,162,64]; // [1278.2963]
-    // let arr = [2,1,2,64,1,2,1]
+    let arr = [2,1,2,64,1,2,1]
     // let arr = [3,34,115,100,34,104,106,1,231,153,162,233,222,228,159,129,30,167,96]; // 1278.2963
-    let arr = [162,64,2,15,1,164,64];
+    // let arr = [162,64,2,15,1,164,64];
     let byteArr = new ArrayBuffer(arr.length);
     let vbsCode = new DataView(byteArr);
     for(let i = 0; i < arr.length; i++) {
@@ -75,7 +75,7 @@ function testVbsKeyVal() {
     // let sa = vbsDecode.decodeVBS(byteArr);
     // console.log(111, sa)
     try {
-        let ss = vbsDecode.decodeVBS(byteArr,2);
+        let ss = vbsDecode.decodeVBS(byteArr,5);
         console.log(222, ss)
     } catch(e) {
         console.error(e.name + ": " + e.message);
