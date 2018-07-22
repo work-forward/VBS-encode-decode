@@ -176,7 +176,6 @@ function VbsDecoder() {
      */
     this._getStr = function(number) {
         let str = this._getContent(number);
-        this.dec.hStart += number; 
         return commonFun.ab2String(str);
     }
      /**
@@ -186,8 +185,7 @@ function VbsDecoder() {
      *  return the decode blob
      */
     this._takeBytes = function(number) {
-        let blob = this._getContent(number);
-        this.dec.hStart += number; // move 
+        let blob = this._getContent(number); 
         return blob;
     }
     /**
@@ -207,6 +205,7 @@ function VbsDecoder() {
         for(let i=0;i<n;i++) {
             newArr[i] = this.dec.encodeData[startPos+i];
         }
+        this.dec.hStart += n; // move 
         return newArr;
     }
     /**
