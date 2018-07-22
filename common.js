@@ -61,7 +61,7 @@ function isEmpty(value) {
 // ArrayBuffer  to string,
 // {param: buf/array}
 function ab2String(buf) {
-   return String.fromCharCode.apply(null, new Uint16Array(buf));
+   return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
 
 // string to ArrayBuffer,

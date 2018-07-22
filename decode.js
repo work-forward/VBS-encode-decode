@@ -120,8 +120,7 @@ function VbsDecoder() {
      */
     this.decodeObj = function() {
         let x;
-        this._unpackHead(); 
-        // console.log("head: ", this.head)    
+        this._unpackHead();    
         if (this.dec.err != NoError) {
             return;
         }
@@ -144,8 +143,8 @@ function VbsDecoder() {
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                let blobData = this._takeBytes(this.head.num); 
-
+                // let blobData = this._takeBytes(this.head.num); 
+                let blobData = this._getContent(this.head.num);
                 // let newBuf = commonFun.string2Arrb(this.dec.encodeData.toString());
                 // x = new Uint8Array(this.dec.encodeData, this.dec.hStart, this.head.num)
                 // console.log(444, x, this.dec.hStart, this.head.num, this.dec.encodeData)

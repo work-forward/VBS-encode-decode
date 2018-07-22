@@ -56,11 +56,12 @@ function testVbsArray() {
     // let u = [92389.89, 23.78,829.789,3.127823,2323.20];
     // let u = [[78,[90,79]],[892323,[909023,78232323]]];
     // let u = [892323,[909023,78232323]];
-    let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
+    // let u = ["wehjwe","sdjhdsfd","dfbjdfdf","dfdufdqwqw","sdwuebuweegueygfurwr","sdhhhhhhuer","374823"];
     // let u = ["why"];
     // let u = ["shdjsd"]
     // let u = [89.347,89]
-    // let u = new Uint8Array([15,68,12,68]);
+    // let u = [new Uint8Array([15,68,12,68]),89,67,"dshfjf",new Uint8Array([348,12,68])];
+    let u = [new Uint8Array([248,12,68])];
     // let u = [12,34,78,"string", null, 'undefied'];
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
