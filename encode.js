@@ -256,6 +256,7 @@ function encodeVBS(u) {
     for(let i = 0; i < strCode.length; i++) {
       vbsCode.setUint8(i, strCode[i]);
     }
+    console.log("###", strCode.toString())
     return byteArr;
 }
 
