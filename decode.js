@@ -45,7 +45,7 @@ function VbsDecoder() {
             if (this.dec.err != NoError) {
                 return;
             }
-            back_arr = commonFun.arrCopy(back_arr, x[0]);
+            back_arr = commonFun.arrCopy(back_arr, x);
         }
         return back_arr;
     }
@@ -68,11 +68,8 @@ function VbsDecoder() {
             if (this._unpackIfTail()) {
                 break;
             }
-            let kObj = this.decodeObj();
-            let k = kObj[0];
-
-            let vObj = this.decodeObj();
-            let v = vObj[0];
+            let k = this.decodeObj();
+            let v = this.decodeObj();
 
             if (this.dec.err != NoError) {
                 return;
@@ -128,10 +125,7 @@ function VbsDecoder() {
                 x = this.head.num;
                 break;
            case kindConst.vbsKind.VBS_STRING: // string
-                let str = this._getStr(this.head.num);
-                if (this.dec.err == NoError) {
-                    x = str;
-                }
+                x = this._getStr(this.head.num);
                 break;
            case kindConst.vbsKind.VBS_FLOATING: // float 
                 let num = this.head.num;
@@ -141,15 +135,10 @@ function VbsDecoder() {
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                // let blobData = this._getContent(this.head.num);
-                // if (this.dec.err == NoError) {
-                //     x = new Uint8Array(blobData); 
-                       x = this.get_x(this.head.num);
-                // }
+                x = this.get_x(this.head.num);
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
-                x =  this._decodeArray();  
-                console.log("List:", x);
+                x =  this._decodeArray(); 
                 break;
            case kindConst.vbsKind.VBS_DICT: // key/value
                 x = this._decodeKV();
@@ -160,7 +149,7 @@ function VbsDecoder() {
            default:
                 this.dec.err = "Invalid Vbs Error!";
         }
-        return [x, this.dec.hStart];
+        return x;
     }
     /**
      *  @get string content
@@ -168,41 +157,28 @@ function VbsDecoder() {
      *  decode the encodeData
      *  return the decode string
      */
-    this._getStr = function(number) {
-        let str = this._getContent(number);
-        return commonFun.byteToString(str);
-    }
-    this.get_x = function(num) {
-        let strCode = this.dec.encodeData;
-        let byteArr = new ArrayBuffer(strCode.length); 
-        let vbsCode = new DataView(byteArr);
-        for(let i = 0; i < strCode.length; i++) {
-          vbsCode.setUint8(i, strCode[i]);
-        }
-        let x = new Uint8Array(byteArr, this.dec.hStart, num);
-        this.dec.hStart += num;
-        return x; 
-    }
-    /**
-     *  @get the array that split value from 0 to len-1
-     *
-     *  {param: value, the array of the encode}
-     *  {len: the length that need to split}
-     *  
-     */
-    this._getContent = function(n) {
-        let newArr = [];
+     this._getStr = function(n) {
+        let str = "";
         if (n > this._left()) {
             this.dec.err = "Invalid Vbs Error";
             return;
         }
         let startPos = this.dec.hStart;
-        for(let i=0;i<n;i++) {
-            newArr[i] = this.dec.encodeData[startPos+i];
-        }
+        
+        str = commonFun.byteToStringStart(this.dec.encodeData,startPos,startPos+n);
         this.dec.hStart += n; // move 
-        return newArr;
+        return str;
     }
+    this.get_x = function(num) {
+        if (num > this._left()) {
+            this.dec.err = "Invalid Vbs Error";
+            return;
+        }
+        let dataBuf = new Uint8Array(this.dec.encodeData);
+        let x = new Uint8Array(dataBuf.buffer, this.dec.hStart, num);
+        this.dec.hStart += num;
+        return x; 
+    }  
     /**
      *  @unpack the tail
      *
@@ -481,7 +457,7 @@ function decode(dataArr, j) {
     if (vbsDecode.dec.err != NoError) {
         throw new Error(vbsDecode.dec.err);
     } 
-    return decodeData;  
+    return [decodeData, vbsDecode.dec.hStart];  
 }
 /**
   *   @decode data 

@@ -29,15 +29,15 @@ function stringToByte(str) {
 
 
 }
- 
+
 // byte to string 
-function byteToString(arr) {
+function byteToStringStart(arr, pos, n) {
 	if(typeof arr === 'string') {
 		return arr;
 	}
 	var str = '',
 		_arr = arr;
-	for(var i = 0; i < _arr.length; i++) {
+	for(var i = pos; i < n; i++) {
 		var one = _arr[i].toString(2),
 			v = one.match(/^1+?(?=0)/);
 		if(v && one.length == 8) {
@@ -59,29 +59,6 @@ function isEmpty(value) {
   return (Array.isArray(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0);
 }
 
-function deepClone(obj) {
-  // test whether it is array or object
-  // let isArr = Object.prototype.toString.call(obj) === '[object Array]';
-  let isArr = Array.isArray(obj);
-  let isJson = Object.prototype.toString.call(obj) === '[object Object]';
-  if (isArr) {
-    // clone array
-    let newObj = [];
-    for (let i = 0; i < obj.length; i++) {
-      newObj[i] = deepClone(obj[i]);
-    }
-    return newObj;
-  } else if (isJson) {
-    // clone object
-    let newObj = {};
-    for (let i in obj) {
-      newObj[i] = deepClone(obj[i]);
-    }
-    return newObj;
-  }
-  // direct return if it isn't reference type
-  return obj;
-};
 // put obj to arr1
 function arrCopy(arr1, obj) {
 	if (typeof obj != "undefined") {
@@ -93,8 +70,7 @@ function arrCopy(arr1, obj) {
 module.exports = {
     isInteger,
     stringToByte,
-    byteToString,
     isEmpty,
-    deepClone,
-    arrCopy
+    arrCopy,
+    byteToStringStart
 }
