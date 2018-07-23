@@ -108,7 +108,6 @@ function VbsDecoder() {
         if (commonFun.isInteger(i) && i > 0) {
             this.dec.hStart = i;
         } 
-        // console.log(this.dec.encodeData, this.dec.hStart, this.dec.hEnd)
     }
      /**
      *  @decode obj
