@@ -62,7 +62,7 @@ function VbsDecoder() {
             this.dec.err = "Depth Overflow Error: " + this.dec.maxDepth;
             return;
         }
-        let ms; // int、string/value
+        let ms = {}; // int、string/value
         let kind = 0;
         for (;this.dec.err == NoError;) {
             if (this._unpackIfTail()) {
@@ -83,7 +83,6 @@ function VbsDecoder() {
                 switch(kind) {
                     case 'number':
                     case 'string':
-                         ms = {};   // string/value
                          break;
                     default:
                          this.dec.err = "Invalid Unmarshal Error!";
@@ -106,7 +105,7 @@ function VbsDecoder() {
         this.dec.encodeData = value;
         this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);      
  
-        if (typeof i == "undefined" || i > this.dec.maxLength) {
+        if (typeof i == "undefined" || i > this.dec.hEnd) {
             this.dec.err = "Input Parameter Error: " + i;
         }
         if (commonFun.isInteger(i) && i > 0) {
@@ -124,7 +123,6 @@ function VbsDecoder() {
         if (this.dec.err != NoError) {
             return;
         }
-
         switch(this.head.kind) {
            case kindConst.vbsKind.VBS_INTEGER: // int
                 x = this.head.num;
@@ -151,6 +149,7 @@ function VbsDecoder() {
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
                 x =  this._decodeArray();  
+                console.log("List:", x);
                 break;
            case kindConst.vbsKind.VBS_DICT: // key/value
                 x = this._decodeKV();
