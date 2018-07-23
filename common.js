@@ -31,7 +31,7 @@ function stringToByte(str) {
 }
 
 // byte to string 
-function byteToStringStart(arr, pos, n) {
+function byteToString(arr, pos, n) {
 	if(typeof arr === 'string') {
 		return arr;
 	}
@@ -72,5 +72,5 @@ module.exports = {
     stringToByte,
     isEmpty,
     arrCopy,
-    byteToStringStart
+    byteToString
 }

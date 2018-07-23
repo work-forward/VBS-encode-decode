@@ -13,7 +13,6 @@ function VbsDecoder() {
         num: 0
     };
     VbsDecoder.prototype.dec = {
-        maxStrLength: 0,
         maxDepth: limitConst.MaxDepth,
         depth: 0,
         err: "",
@@ -135,7 +134,7 @@ function VbsDecoder() {
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                x = this.get_x(this.head.num);
+                x = this._getBlob(this.head.num);
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
                 x =  this._decodeArray(); 
@@ -165,11 +164,17 @@ function VbsDecoder() {
         }
         let startPos = this.dec.hStart;
         
-        str = commonFun.byteToStringStart(this.dec.encodeData,startPos,startPos+n);
+        str = commonFun.byteToString(this.dec.encodeData,startPos,startPos+n);
         this.dec.hStart += n; // move 
         return str;
     }
-    this.get_x = function(num) {
+    /**
+     *  @get blob content
+     *
+     *  decode the encodeData
+     *  return the decode blob
+     */
+    this._getBlob = function(num) {
         if (num > this._left()) {
             this.dec.err = "Invalid Vbs Error";
             return;
