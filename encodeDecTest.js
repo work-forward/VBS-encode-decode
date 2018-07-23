@@ -60,10 +60,10 @@ function testVbsArray() {
     // let u = ["why"];
     // let u = ["shdjsd"]
     // let u = [89.347,89]
-    // let u = [new Uint8Array([15,68,12,68]),89,67,"dshfjf",new Uint8Array([348,12,68])];
+    let u = [new Uint8Array([15,68,12,68]),89,67,"dshfjf",new Uint8Array([38,12,68])];
     // let u = [new Uint8Array([248,12,68])];
     // let u = [12,34,78,"string", null, 'undefied'];
-    let u = ["中国","日本","俄罗斯","美国","韩国","dhjfdf","澳大利亚"];
+    // let u = ["中国","日本","俄罗斯","美国","韩国","dhjfdf","澳大利亚"];
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
     let ss = vbsDecode.decodeVBS(myVbs,0);

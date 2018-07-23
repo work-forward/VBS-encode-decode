@@ -143,13 +143,11 @@ function VbsDecoder() {
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                let blobData = this._getContent(this.head.num);
-                // x = new Uint8Array(this.dec.encodeData, this.dec.hStart, this.head.num)
-                // console.log(444, x, this.dec.hStart, this.head.num, this.dec.encodeData)
-
-                if (this.dec.err == NoError) {
-                    x = new Uint8Array(blobData); 
-                }
+                // let blobData = this._getContent(this.head.num);
+                // if (this.dec.err == NoError) {
+                //     x = new Uint8Array(blobData); 
+                       x = this.get_x(this.head.num);
+                // }
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
                 x =  this._decodeArray();  
@@ -174,6 +172,17 @@ function VbsDecoder() {
     this._getStr = function(number) {
         let str = this._getContent(number);
         return commonFun.byteToString(str);
+    }
+    this.get_x = function(num) {
+        let strCode = this.dec.encodeData;
+        let byteArr = new ArrayBuffer(strCode.length); 
+        let vbsCode = new DataView(byteArr);
+        for(let i = 0; i < strCode.length; i++) {
+          vbsCode.setUint8(i, strCode[i]);
+        }
+        let x = new Uint8Array(byteArr, this.dec.hStart, num);
+        this.dec.hStart += num;
+        return x; 
     }
     /**
      *  @get the array that split value from 0 to len-1

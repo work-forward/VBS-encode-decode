@@ -147,8 +147,8 @@ function VbsEncoder() {
     this.encodeString = function(value) {
         let bytes = commonFun.stringToByte(value);
         this._packIntOrStringHead(kindConst.vbsKind.VBS_STRING, bytes.length);
-        let n = this.bp.length;
-        
+
+        let n = this.bp.length; 
         this.bp = this.bp.concat(bytes); 
         return this.bp;
     }
