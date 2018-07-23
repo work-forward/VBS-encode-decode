@@ -79,7 +79,7 @@ function testVbsKeyVal() {
     // let arr = [3,33,97,251,64,34,100,107,200,67,1,2,1]; // { a: 123, dk: 456 }
     // let arr = [3,1];
     // let arr = [2,1];
-    let arr = "3 37 104 101 108 108 111 65 37 119 111 114 108 100 67 37 102 97 105 110 116 97 1";
+    // let arr = "3 37 104 101 108 108 111 65 37 119 111 114 108 100 67 37 102 97 105 110 116 97 1";
     // let arr = [2,128,27,1]; // [ Uint8Array [  ] ]
     let byteArr = new ArrayBuffer(arr.length);
     let vbsCode = new DataView(byteArr);
