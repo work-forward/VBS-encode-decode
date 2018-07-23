@@ -99,7 +99,8 @@ function VbsDecoder() {
      */
     this.decodeInit = function(value, i) {
         this.dec.encodeData = value;
-        this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);      
+
+        this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.byteLength);      
  
         if (typeof i == "undefined" || i > this.dec.hEnd) {
             this.dec.err = "Input Parameter Error: " + i;
@@ -107,6 +108,7 @@ function VbsDecoder() {
         if (commonFun.isInteger(i) && i > 0) {
             this.dec.hStart = i;
         } 
+        // console.log(this.dec.encodeData, this.dec.hStart, this.dec.hEnd)
     }
      /**
      *  @decode obj
@@ -128,7 +130,8 @@ function VbsDecoder() {
                 break;
            case kindConst.vbsKind.VBS_FLOATING: // float 
                 let num = this.head.num;
-                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER); 
+                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
+
                 if (this.dec.err == NoError) {
                     x = floatOperate.makeFloat(num, this.head.num); 
                 } 
@@ -164,7 +167,7 @@ function VbsDecoder() {
         }
         let startPos = this.dec.hStart;
         
-        str = commonFun.byteToString(this.dec.encodeData,startPos,startPos+n);
+        str = commonFun.abToString(this.dec.encodeData,startPos, n);
         this.dec.hStart += n; // move 
         return str;
     }
@@ -172,15 +175,14 @@ function VbsDecoder() {
      *  @get blob content
      *
      *  decode the encodeData
-     *  return the decode blob
+     *  return the decode string
      */
     this._getBlob = function(num) {
         if (num > this._left()) {
             this.dec.err = "Invalid Vbs Error";
             return;
         }
-        let dataBuf = new Uint8Array(this.dec.encodeData);
-        let x = new Uint8Array(dataBuf.buffer, this.dec.hStart, num);
+        let x = new Uint8Array(this.dec.encodeData, this.dec.hStart, num);
         this.dec.hStart += num;
         return x; 
     }  
@@ -192,7 +194,8 @@ function VbsDecoder() {
     this._unpackIfTail = function() {
         if (this.dec.err == NoError) {
             let hSize = this.dec.hEnd - this.dec.hStart;
-            if (hSize > 0 && (this.dec.depth > 0) && (this.dec.encodeData[this.dec.hStart] == kindConst.vbsKind.VBS_TAIL)) {
+            let kind = new Uint8Array(this.dec.encodeData,this.dec.hStart,1); 
+            if (hSize > 0 && (this.dec.depth > 0) && (kind == kindConst.vbsKind.VBS_TAIL)) {
                 this.dec.hStart++;
                 this.dec.depth--;
                 return true;
@@ -225,17 +228,17 @@ function VbsDecoder() {
        if (this.dec.err != NoError) {
             return;
        }
-       
-       let headData = this.dec.encodeData;
+       let headDView = new DataView(this.dec.encodeData);
        let n = this.dec.hEnd;
        let negative = false;
        let kd = 0;
        let descriptor = 0;
        let num = 0;
        let i = this.dec.hStart; 
+
        loop1:
             for(;i < n;) {
-                let x = headData[i++];
+                let x = headDView.getUint8(i++);
                 if (x < 0x80) {
                     kd = x;
                     if (x >= kindConst.vbsKind.VBS_STRING) { // 0x20
@@ -288,7 +291,7 @@ function VbsDecoder() {
                           return;
                        }
                        shift += 7;
-                       x = headData[i++];
+                       x = headDView.getUint8(i++);
                        if (x < 0x80) {
                           break;
                        }
@@ -379,7 +382,7 @@ function VbsDecoder() {
                     this.head.num = -this.head.num;
                 }
 
-                this.dec.hStart = i; // i point to the index of headData
+                this.dec.hStart = i; // i point to the index of headDView
                 return;
         }
         this.dec.err = "Invalid Vbs Error";
@@ -472,13 +475,14 @@ function vbsParse(opt, j) {
         if (opt.length <= 0) {
                 return;
         }  
-       let dv = new DataView(opt); 
-       let dataArr = [];
-       for(let i = 0; i < opt.byteLength; i++) {
-          dataArr[i] =dv.getUint8(i);
+       if (!Object.prototype.toString.call(opt) == '[object ArrayBuffer]') {
+            opt = new ArrayBuffer(opt.length);
+            let vbsCode = new DataView(byteArr);
+            for(let i = 0; i < opt.length; i++) {
+              vbsCode.setUint8(i, opt[i]);
+            }
        }
-       return decode(dataArr, j);    
-       
+       return decode(opt, j);         
 }
 function decodeVBS(u, j) {
     return vbsParse(u, j);

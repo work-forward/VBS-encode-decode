@@ -30,14 +30,14 @@ function stringToByte(str) {
 
 }
 
-// byte to string 
-function byteToString(arr, pos, n) {
+// ArrayBuf to string 
+function abToString(arr, pos, n) {
 	if(typeof arr === 'string') {
 		return arr;
 	}
-	var str = '',
-		_arr = arr;
-	for(var i = pos; i < n; i++) {
+	var str = '', _arr;
+	_arr = new Uint8Array(arr, pos);
+	for(var i = 0; i < n; i++) {
 		var one = _arr[i].toString(2),
 			v = one.match(/^1+?(?=0)/);
 		if(v && one.length == 8) {
@@ -72,5 +72,5 @@ module.exports = {
     stringToByte,
     isEmpty,
     arrCopy,
-    byteToString
+    abToString
 }
