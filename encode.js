@@ -145,9 +145,10 @@ function VbsEncoder() {
       *   pack the data
      */
     this.encodeString = function(value) {
-        this._packIntOrStringHead(kindConst.vbsKind.VBS_STRING, value.length);
-        let n = this.bp.length;
         let bytes = commonFun.stringToByte(value);
+        this._packIntOrStringHead(kindConst.vbsKind.VBS_STRING, bytes.length);
+        let n = this.bp.length;
+        
         this.bp = this.bp.concat(bytes); 
         return this.bp;
     }

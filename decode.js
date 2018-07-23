@@ -120,7 +120,7 @@ function VbsDecoder() {
      */
     this.decodeObj = function() {
         let x;
-        this._unpackHead();    
+        this._unpackHead();  
         if (this.dec.err != NoError) {
             return;
         }
@@ -143,9 +143,7 @@ function VbsDecoder() {
                 } 
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
-                // let blobData = this._takeBytes(this.head.num); 
                 let blobData = this._getContent(this.head.num);
-                // let newBuf = commonFun.string2Arrb(this.dec.encodeData.toString());
                 // x = new Uint8Array(this.dec.encodeData, this.dec.hStart, this.head.num)
                 // console.log(444, x, this.dec.hStart, this.head.num, this.dec.encodeData)
 
@@ -175,17 +173,7 @@ function VbsDecoder() {
      */
     this._getStr = function(number) {
         let str = this._getContent(number);
-        return commonFun.ab2String(str);
-    }
-     /**
-     *  @get blob conten
-     *
-     *  decode blob encodeData
-     *  return the decode blob
-     */
-    this._takeBytes = function(number) {
-        let blob = this._getContent(number); 
-        return blob;
+        return commonFun.byteToString(str);
     }
     /**
      *  @get the array that split value from 0 to len-1

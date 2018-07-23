@@ -58,22 +58,6 @@ function byteToString(arr) {
 function isEmpty(value) {
   return (Array.isArray(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0);
 }
-// ArrayBuffer  to string,
-// {param: buf/array}
-function ab2String(buf) {
-   return String.fromCharCode.apply(null, new Uint8Array(buf));
-}
-
-// string to ArrayBuffer,
-// {param: string}
-function string2Arrb(str) {
-  var buf = new ArrayBuffer(str.length * 2); // 每个字符占用2个字节
-  var bufView = new Uint16Array(buf);
-  for (var i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
 
 function deepClone(obj) {
   // test whether it is array or object
@@ -111,8 +95,6 @@ module.exports = {
     stringToByte,
     byteToString,
     isEmpty,
-    ab2String,
-    string2Arrb,
     deepClone,
     arrCopy
 }
