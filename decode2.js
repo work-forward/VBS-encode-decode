@@ -98,9 +98,9 @@ function VbsDecoder() {
      *
      */
     this.decodeInit = function(value, i) {
-        this.dec.encodeData = new Uint8Array(value);
+        this.dec.encodeData = value;
 
-        this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);      
+        this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.byteLength);      
  
         if (typeof i == "undefined" || i > this.dec.hEnd) {
             this.dec.err = "Input Parameter Error: " + i;
@@ -166,7 +166,7 @@ function VbsDecoder() {
         }
         let startPos = this.dec.hStart;
         
-        str = commonFun.abToString(this.dec.encodeData,startPos, startPos+n);
+        str = commonFun.abToString(this.dec.encodeData,startPos, n);
         this.dec.hStart += n; // move 
         return str;
     }
@@ -181,7 +181,7 @@ function VbsDecoder() {
             this.dec.err = "Invalid Vbs Error";
             return;
         }
-        let x = new Uint8Array(this.dec.encodeData.buffer, this.dec.hStart, num);
+        let x = new Uint8Array(this.dec.encodeData, this.dec.hStart, num);
         this.dec.hStart += num;
         return x; 
     }  
@@ -193,7 +193,7 @@ function VbsDecoder() {
     this._unpackIfTail = function() {
         if (this.dec.err == NoError) {
             let hSize = this.dec.hEnd - this.dec.hStart;
-            let kind = this.dec.encodeData[this.dec.hStart]; 
+            let kind = new Uint8Array(this.dec.encodeData,this.dec.hStart,1)[0]; 
             if (hSize > 0 && (this.dec.depth > 0) && (kind == kindConst.vbsKind.VBS_TAIL)) {
                 this.dec.hStart++;
                 this.dec.depth--;
@@ -227,7 +227,7 @@ function VbsDecoder() {
        if (this.dec.err != NoError) {
             return;
        }
-       let headData = this.dec.encodeData;
+       let headDView = new DataView(this.dec.encodeData);
        let n = this.dec.hEnd;
        let negative = false;
        let kd = 0;
@@ -237,7 +237,7 @@ function VbsDecoder() {
 
        loop1:
             for(;i < n;) {
-                let x = headData[i++];
+                let x = headDView.getUint8(i++);
                 if (x < 0x80) {
                     kd = x;
                     if (x >= kindConst.vbsKind.VBS_STRING) { // 0x20
@@ -290,7 +290,7 @@ function VbsDecoder() {
                           return;
                        }
                        shift += 7;
-                       x = headData[i++];
+                       x = headDView.getUint8(i++);
                        if (x < 0x80) {
                           break;
                        }
@@ -381,7 +381,7 @@ function VbsDecoder() {
                     this.head.num = -this.head.num;
                 }
 
-                this.dec.hStart = i; // i point to the index of headData
+                this.dec.hStart = i; // i point to the index of headDView
                 return;
         }
         this.dec.err = "Invalid Vbs Error";

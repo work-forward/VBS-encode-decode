@@ -252,12 +252,9 @@ function vbsStringify(obj) {
 */
 function encodeVBS(u) { 
     let strCode = new vbsStringify(u);  // get encode vbs
-    let byteArr = new ArrayBuffer(strCode.length); 
-    let vbsCode = new DataView(byteArr);
-    for(let i = 0; i < strCode.length; i++) {
-      vbsCode.setUint8(i, strCode[i]);
-    }
-    return byteArr;
+    let byteArr = new Uint8Array(strCode);
+    // console.log(strCode.toString())
+    return byteArr.buffer;
 }
 
 module.exports = {
