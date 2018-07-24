@@ -63,9 +63,10 @@ function testVbsArray() {
     // let u = [new Uint8Array([15,68,12,68]),89,67,"dshfjf",new Uint8Array([38,12,68])];
     // let u = [new Uint8Array([])];
     // let u = [12,-3.04,-78.6,"string", null,"中国",new Uint8Array([15,68,12,68]),"sddf"];
-    let u = ["中国",2389,92389238293232320,-78.9,[909023,78232323],"日本","dfjdf","俄罗斯",new Uint8Array([15,68,12,68]),"dfhjdfer","美国","韩国","dhjfdf","澳大利亚"];
+    // let u = ["中国",2389,92389238293232320,-78.9,[909023,78232323],"日本","dfjdf","俄罗斯",new Uint8Array([15,68,12,68]),"dfhjdfer","美国","韩国","dhjfdf","澳大利亚"];
     // let u = {};
     // let u = Math.pow(2,128);
+    let u = true;
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
     let ss = vbsDecode.decodeVBS(myVbs,0);

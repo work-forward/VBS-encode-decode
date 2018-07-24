@@ -30,7 +30,6 @@ function VbsDecoder() {
      */
     this._decodeArray = function() {
         this.dec.depth++;
-        
         if (this.dec.depth > this.dec.maxDepth) {
             this.dec.err = "Depth Overflow Error { "+this.dec.maxDepth+" }";
             return;
@@ -99,7 +98,6 @@ function VbsDecoder() {
      */
     this.decodeInit = function(value, i) {
         this.dec.encodeData = new Uint8Array(value);
-
         this.dec.hEnd = (this.dec.encodeData == "undefined" ? 0: this.dec.encodeData.length);      
  
         if (typeof i == "undefined" || i > this.dec.hEnd) {
@@ -137,6 +135,9 @@ function VbsDecoder() {
                 break;
            case kindConst.vbsKind.VBS_BLOB: // blob
                 x = this._getBlob(this.head.num);
+                break;
+           case kindConst.vbsKind.VBS_BOOL:
+                x = (this.head.num != 0);
                 break;
            case kindConst.vbsKind.VBS_LIST: // array
                 x =  this._decodeArray(); 
