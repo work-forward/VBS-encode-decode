@@ -45,6 +45,7 @@ function VbsDecoder() {
             }
             back_arr = commonFun.arrCopy(back_arr, x);
         }
+
         return back_arr;
     }
     /**
@@ -88,6 +89,7 @@ function VbsDecoder() {
                 return;
             }
             ms[kk] = v;
+
         }
 
         return ms;
@@ -118,6 +120,7 @@ function VbsDecoder() {
         if (this.dec.err != NoError) {
             return;
         }
+
         switch(this.head.kind) {
            case kindConst.vbsKind.VBS_INTEGER: // int
                 x = this.head.num;
@@ -462,6 +465,7 @@ function decode(dataArr, j) {
     var vbsDecode = new VbsDecoder();
     vbsDecode.decodeInit(dataArr, j); 
     let decodeData = vbsDecode.decodeObj();
+    
     if (vbsDecode.dec.err != NoError) {
         throw new Error(vbsDecode.dec.err);
     } 
