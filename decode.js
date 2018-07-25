@@ -120,7 +120,7 @@ function VbsDecoder() {
         if (this.dec.err != NoError) {
             return;
         }
-        
+
         switch(this.head.kind) {
            case kindConst.vbsKind.VBS_INTEGER: // int
                 x = this.head.num;
@@ -251,6 +251,7 @@ function VbsDecoder() {
                             kd = kindConst.vbsKind.VBS_INTEGER;
                             negative = true;
                         }
+
                     } else if (x >= kindConst.vbsKind.VBS_BOOL) { // 0x18
                         if (x != kindConst.vbsKind.VBS_BLOB) { // 0x1B
                             kd = x & 0xFE;
@@ -300,7 +301,7 @@ function VbsDecoder() {
                        }
                        x &= 0x7F;
                        let left = 64 - shift;
-                       if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                       if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
                             this.dec.err = "Number Over flow Error";
                             return;
                        }
@@ -319,11 +320,12 @@ function VbsDecoder() {
                         x &= 0x1F;
                         if(x != 0) {
                             let left = 64 - shift;
-                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                            if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
                                 this.dec.err = "Number Over flow Error";
                                 return;
                             }
                             m = x.toString(2);
+                            
                             if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
                                m = _padZero(m);
                             }
@@ -332,6 +334,7 @@ function VbsDecoder() {
 
                             // num |= x << (shift >>> 0);
                         }
+
                         if (kd == 0x60) {
                             kd = kindConst.vbsKind.VBS_INTEGER;
                             negative = true;
@@ -343,7 +346,7 @@ function VbsDecoder() {
                         x &= 0x07;
                         if(x != 0) {
                             let left = 64 - shift;
-                            if (left <= 0 || (left < 7 && x >= (1 << (left >>> 0)))) {
+                            if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
                                 this.dec.err = "Number Over flow Error";
                                 return;
                             }
