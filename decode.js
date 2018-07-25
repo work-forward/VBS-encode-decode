@@ -120,7 +120,7 @@ function VbsDecoder() {
         if (this.dec.err != NoError) {
             return;
         }
-
+        
         switch(this.head.kind) {
            case kindConst.vbsKind.VBS_INTEGER: // int
                 x = this.head.num;
