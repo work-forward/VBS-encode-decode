@@ -68,7 +68,7 @@ function testVbsArray() {
     // let u = Math.pow(2,128);
     // let u = [true,12,89.78,"hjdf",[89,67],{"df":"dfb","dg":89}];
     // let u = [{"df":"dfb","dg":89}];
-    let u = Math.pow(2, 58)
+    let u = Math.pow(2, 1023)
     let myVbs = vbsEncode.encodeVBS(u);
     // console.log(myVbs)
     let ss = vbsDecode.decodeVBS(myVbs,0);

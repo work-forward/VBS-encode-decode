@@ -131,7 +131,6 @@ function VbsDecoder() {
            case kindConst.vbsKind.VBS_FLOATING: // float 
                 let num = this.head.num;
                 this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
-
                 if (this.dec.err == NoError) {
                     x = floatOperate.makeFloat(num, this.head.num); 
                 } 
@@ -325,7 +324,7 @@ function VbsDecoder() {
                                 return;
                             }
                             m = x.toString(2);
-                            
+
                             if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
                                m = _padZero(m);
                             }
@@ -387,7 +386,6 @@ function VbsDecoder() {
                 if (negative) {
                     this.head.num = -this.head.num;
                 }
-
                 this.dec.hStart = i; // i point to the index of headData
                 return;
         }

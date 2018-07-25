@@ -50,13 +50,16 @@ function FloatOperate() {
         	if (expo < 0) {
         		expo = -expo;
         		negative = true;
+        	} 
+            if (expo < flt_ZERO) {
+                num = 0;
         	} else if (expo == flt_INF) {
-        		if (negative) {
-        			num = Number.POSITIVE_INFINITY;
-        		} else {
-        			num = Number.NEGATIVE_INFINITY;
-        		} 
-        	} else {
+                if (negative) {
+                    num = Number.NEGATIVE_INFINITY;
+                } else {
+                    num = Number.POSITIVE_INFINITY;
+                }
+            } else {
         		num = Number.NaN;
         	}
         } else {
@@ -64,29 +67,26 @@ function FloatOperate() {
         		mantissa = -mantissa;
         		negative = true;
         	}
-        	if (expo > 1023 | expo < -1022) { // Special case: +-Infinity
+        	if (expo >= 0x7FF) { // Special case: +-Infinity
         	   if (negative) {
         	   	 num = Number.NEGATIVE_INFINITY;
         	   } else {
         	   	 num = Number.POSITIVE_INFINITY;
         	   }
-        	}
-        	if (isNaN(expo)) {
-        		expo = flt_NAN;
-        	}
-
-        	for (let i=0; i< 52; i++) {
-	            if (mantissa < 2 && ((mantissa % 1 != 0) | mantissa == 1)) {  
-	                break;
-	            } else {
-	                mantissa = mantissa / 2;
-	                expo++;
-	            }
-	    	 }
-	    	num = mantissa * Math.pow(2, expo);
-	    	if (negative) {
-	    		num = -num;
-	    	}
+        	} else {
+                for (let i=0; i< 52; i++) {
+                    if (mantissa < 2 && ((mantissa % 1 != 0) | mantissa == 1)) {  
+                        break;
+                    } else {
+                            mantissa = mantissa / 2;
+                            expo++;
+                    }
+                }
+                num = mantissa * Math.pow(2, expo);
+                if (negative) {
+                    num = -num;
+                }
+            }
         }
         return num;
     }
