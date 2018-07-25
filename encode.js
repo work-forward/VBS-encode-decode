@@ -233,7 +233,6 @@ function vbsStringify(obj) {
             case 'string':
                 return vbsEncode.encodeString(obj);
             case 'undefined':
-            case 'null':
             case 'function':
                 return vbsEncode.encodeNull(obj);
             case 'object':
