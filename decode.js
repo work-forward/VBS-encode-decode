@@ -130,7 +130,7 @@ function VbsDecoder() {
                 break;
            case kindConst.vbsKind.VBS_FLOATING: // float 
                 let num = this.head.num;
-                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER);
+                this._unpackHeadKind(kindConst.vbsKind.VBS_INTEGER, false);
                 if (this.dec.err == NoError) {
                     x = floatOperate.makeFloat(num, this.head.num); 
                 } 
@@ -211,12 +211,12 @@ function VbsDecoder() {
      *  {param: kind, identifier different type}
      *  return: head, the struct that contain {kind, number,negative}
      */
-    this._unpackHeadKind = function(kind) {
+    this._unpackHeadKind = function(kind, permitDescriptor) {
         this._unpackHead();
         if (this.dec.err == NoError) {
             if (this.head.kind != kind) {
                 this.dec.err = "Mismatched Kind Error { Expect: "+kind+" ,Got: "+this.head.kind+" }";
-            } else if (this.head.descriptor != 0) {
+            } else if (!permitDescriptor && this.head.descriptor != 0) {
                 this.dec.err = "Invalid Vbs Error";
             }
         }
@@ -261,23 +261,23 @@ function VbsDecoder() {
                     } else if (x >= kindConst.vbsKind.VBS_DESCRIPTOR) {
                         num = (x & 0x07) >>> 0;
                         if (num == 0) {
-                           if ((descriptor&kindConst.VBS_SPECIAL_DESCRIPTOR) == 0) {
+                           if ((descriptor&kindConst.VBS_SPECIAL_DESCRIPTOR) == 0) { // spec
                               descriptor |= kindConst.VBS_SPECIAL_DESCRIPTOR;
                            } else {
-                              this.dec.err = "Invalid VBS Error";
+                              this.dec.err = "Error: Invalid vbs-encoded bytes";
                               return;
                            }
                         } else {
-                            if ((descriptor&kindConst.VBS_DESCRIPTOR_MAX) == 0) {
-                               descriptor |= num >>> 0;
+                            if ((descriptor & kindConst.VBS_DESCRIPTOR_MAX) == 0) {
+                               descriptor |= (num >>> 0);
                             } else {
-                                this.dec.err = "Invalid VBS Error";
+                                this.dec.err = "Error: Invalid vbs-encoded bytes";
                                 return;
                             }
                         }
                         continue loop1;
                     } else if (!_bitmapTestSingle(x)) {
-                        this.dec.err = "Invalid VBS Error";
+                        this.dec.err = "Error: Invalid vbs-encoded bytes";
                         return;
                     }
                 } else {
@@ -290,7 +290,7 @@ function VbsDecoder() {
                     }
                     for(;;) {
                        if (i >= n) {
-                          this.dec.err = "Invalid VBS Error";
+                          this.dec.err = "Error: Invalid vbs-encoded bytes";
                           return;
                        }
                        shift += 7;
@@ -301,7 +301,7 @@ function VbsDecoder() {
                        x &= 0x7F;
                        let left = 64 - shift;
                        if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
-                            this.dec.err = "Number Over flow Error";
+                            this.dec.err = "Error: Allowed max bits: "+64+", and the bits is "+shift;
                             return;
                        }
                        m = x.toString(2);
@@ -324,7 +324,7 @@ function VbsDecoder() {
                         if(x != 0) {
                             let left = 64 - shift;
                             if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
-                                this.dec.err = "Number Over flow Error";
+                                this.dec.err = "Error: Allowed max bits: "+64+", and the bits is "+shift;
                                 return;
                             }
                             m = x.toString(2);
@@ -353,7 +353,7 @@ function VbsDecoder() {
                         if(x != 0) {
                             let left = 64 - shift;
                             if (left <= 0 || (left < 1 && x >= (1 << (left >>> 0)))) {
-                                this.dec.err = "Number Over flow Error";
+                                this.dec.err = "Error: Allowed max bits: "+64+", and the bits is "+shift;
                                 return;
                             }
                             m = x.toString(2);
@@ -367,13 +367,13 @@ function VbsDecoder() {
                             // num |= x << (shift >>> 0);
                         }
                         if (num == 0 || num > kindConst.VBS_DESCRIPTOR_MAX) {
-                            this.dec.err = "Number Over flow Error";
+                            this.dec.err = "Number is Zero or Over flow Error";
                             return;
                         }
                         if ((descriptor & kindConst.VBS_DESCRIPTOR_MAX) == 0) {
                             descriptor |= num;
                         } else {
-                            this.dec.err = "Number Over flow Error";
+                            this.dec.err = "Descriptor Number Error";
                             return;
                         }
                         continue loop1;
@@ -384,7 +384,7 @@ function VbsDecoder() {
                     let over = (typeof num == "string" && parseInt(num) > limitConst.MaxInt64);
                     if (num > limitConst.MaxInt64 || over) {
                         if (!(kd == kindConst.vbsKind.VBS_INTEGER && negative && num == limitConst.MaxInt64)) {
-                            this.dec.err = "Number Over flow Error";
+                            this.dec.err = "Error: Allowed max number: "+limitConst.MaxInt64+", and the number is "+num;
                             return;
                         }
                     }
