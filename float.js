@@ -1,3 +1,4 @@
+var   bigNumber    =   require('bignumber.js');
 const flt_ZERO_ZERO = 0;    // 0.0 js不区分
 const flt_ZERO      = 1;    // +0.0 or -0.0  js不区分
 const flt_INF       = 2;    // +inf or -inf
@@ -44,7 +45,6 @@ function FloatOperate() {
     }
 
     this._makeFloat = function(mantissa, expo) {
-        // console.log(mantissa, expo)
         let num, negative = false;
         if (mantissa == 0) {
         	if (expo < 0) {
@@ -82,8 +82,8 @@ function FloatOperate() {
                             expo++;
                     }
                 }
-                num = mantissa * Math.pow(2, expo);
-
+                // num = mantissa * Math.pow(2, expo);
+                num = bigNumber(mantissa).multipliedBy(bigNumber(2).exponentiatedBy(expo)).toNumber();
                 if (negative) {
                     num = -num;
                 }

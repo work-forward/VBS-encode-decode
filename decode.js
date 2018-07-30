@@ -1,7 +1,8 @@
-const kindConst  =    require('./kind.js');
-const floatOperate =  require('./float.js');
-const commonFun =     require('./common.js');
-const limitConst  =    require('./limits.js');
+const kindConst    =   require('./kind.js');
+const floatOperate =   require('./float.js');
+const commonFun    =   require('./common.js');
+const limitConst   =   require('./limits.js');
+var   bigNumber    =   require('bignumber.js');
 let   NoError = "";
 /**
  *  @decode class
@@ -120,7 +121,6 @@ function VbsDecoder() {
         if (this.dec.err != NoError) {
             return;
         }
-
         switch(this.head.kind) {
            case kindConst.vbsKind.VBS_INTEGER: // int
                 x = this.head.num;
@@ -309,7 +309,11 @@ function VbsDecoder() {
                            m = _padZero(m);
                         }
                        mon = m + mon;
-                       num = parseInt(mon, 2);
+                       let temp_num = bigNumber(mon, 2);
+                       num = temp_num.toNumber();
+                       if (num > Math.pow(2, 53)) {
+                          num = temp_num.valueOf();
+                       } 
 
                        // num |= x << (shift >>> 0);
                     }
@@ -324,13 +328,16 @@ function VbsDecoder() {
                                 return;
                             }
                             m = x.toString(2);
-
                             if (m.length < 7) { // less than 7 bit, pad the m with 0 to 7 bit
                                m = _padZero(m);
                             }
                             mon = m + mon;
-                            num = parseInt(mon, 2);
 
+                            let temp_num = bigNumber(mon, 2);
+                            num = temp_num.toNumber();
+                            if (num > Math.pow(2, 53)) {
+                              num = temp_num.valueOf();
+                            } 
                             // num |= x << (shift >>> 0);
                         }
 
@@ -354,11 +361,16 @@ function VbsDecoder() {
                                m = _padZero(m);
                             }
                             mon = m + mon;
-                            num = parseInt(mon, 2);
 
+                            let temp_num = bigNumber(mon, 2);
+                            num = temp_num.toNumber();
+                            if (num > Math.pow(2, 53)) {
+                              num = temp_num.valueOf();
+                            } 
                             // num |= x << (shift >>> 0);
                         }
-                        if (num == 0 || num > kindConst.VBS_DESCRIPTOR_MAX) {
+                        let over = (typeof num == "string" && parseInt(num) > kindConst.VBS_DESCRIPTOR_MAX);
+                        if (num == 0 || over) {
                             this.dec.err = "Number Over flow Error";
                             return;
                         }
@@ -373,7 +385,8 @@ function VbsDecoder() {
                         this.dec.err = "Number Over flow Error";
                         return;
                     }
-                    if (num > limitConst.MaxInt64) {
+                    let over = (typeof num == "string" && parseInt(num) > limitConst.MaxInt64);
+                    if (num > limitConst.MaxInt64 || over) {
                         if (!(kd == kindConst.vbsKind.VBS_INTEGER && negative && num == limitConst.MaxInt64)) {
                             this.dec.err = "Number Over flow Error";
                             return;
