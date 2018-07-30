@@ -83,7 +83,8 @@ function FloatOperate() {
                     }
                 }
                 // num = mantissa * Math.pow(2, expo);
-                num = bigNumber(mantissa).multipliedBy(bigNumber(2).exponentiatedBy(expo)).toNumber();
+                let temp_num = bigNumber(mantissa).multipliedBy(bigNumber(2).exponentiatedBy(expo));
+                num = temp_num.toNumber();
                 if (negative) {
                     num = -num;
                 }
