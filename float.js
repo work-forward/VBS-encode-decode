@@ -85,6 +85,9 @@ function FloatOperate() {
                 // num = mantissa * Math.pow(2, expo);
                 let temp_num = bigNumber(mantissa).multipliedBy(bigNumber(2).exponentiatedBy(expo));
                 num = temp_num.toNumber();
+                if (num > Math.pow(2, 63)) {
+                    num = temp_num.valueOf();
+                }
                 if (negative) {
                     num = -num;
                 }
