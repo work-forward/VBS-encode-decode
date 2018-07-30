@@ -364,9 +364,6 @@ function VbsDecoder() {
 
                             let temp_num = bigNumber(mon, 2);
                             num = temp_num.toNumber();
-                            if (num > Math.pow(2, 53)) {
-                              num = temp_num.valueOf();
-                            } 
                             // num |= x << (shift >>> 0);
                         }
                         if (num == 0 || num > kindConst.VBS_DESCRIPTOR_MAX) {
