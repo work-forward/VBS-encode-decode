@@ -369,8 +369,7 @@ function VbsDecoder() {
                             } 
                             // num |= x << (shift >>> 0);
                         }
-                        let over = (typeof num == "string" && parseInt(num) > kindConst.VBS_DESCRIPTOR_MAX);
-                        if (num == 0 || over) {
+                        if (num == 0 || num > kindConst.VBS_DESCRIPTOR_MAX) {
                             this.dec.err = "Number Over flow Error";
                             return;
                         }
