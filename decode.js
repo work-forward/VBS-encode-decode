@@ -217,7 +217,7 @@ function VbsDecoder() {
             if (this.head.kind != kind) {
                 this.dec.err = "Mismatched Kind Error { Expect: "+kind+" ,Got: "+this.head.kind+" }";
             } else if (!permitDescriptor && this.head.descriptor != 0) {
-                this.dec.err = "Invalid Vbs Error";
+                this.dec.err = "Error: Invalid vbs-encoded bytes";
             }
         }
     }
@@ -378,7 +378,7 @@ function VbsDecoder() {
                         }
                         continue loop1;
                     } else if (!_bitmapTestMulti(x)) {
-                        this.dec.err = "Number Over flow Error";
+                        this.dec.err = "Error: Invalid vbs-encoded bytes";
                         return;
                     }
                     let over = (typeof num == "string" && parseInt(num) > limitConst.MaxInt64);
@@ -398,7 +398,7 @@ function VbsDecoder() {
                 this.dec.hStart = i; // i point to the index of headData
                 return;
         }
-        this.dec.err = "Invalid Vbs Error";
+        this.dec.err = "VBS: Invalid vbs-encoded bytes";
         return;
 
     }
