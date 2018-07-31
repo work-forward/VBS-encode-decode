@@ -222,7 +222,8 @@ function vbsStringify(obj) {
         }
         switch (typeof obj) {
             case 'number':
-                // big-float will be lost when store it. If the type of obj is exceed 53, it express with float
+                // big-float will be lost when store it
+                // If the type of obj is exceed 53, it express with float
                 if (commonFun.isInteger(obj) && obj <= Math.pow(2, 53)) {  
                     return vbsEncode.encodeInterger(obj);
                 } else {
@@ -253,7 +254,7 @@ function vbsStringify(obj) {
 function encodeVBS(u) { 
     let strCode = new vbsStringify(u);  // get encode vbs
     let byteArr = new Uint8Array(strCode);
-    // console.log(strCode.toString())
+
     return byteArr.buffer;
 }
 

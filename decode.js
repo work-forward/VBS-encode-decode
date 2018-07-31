@@ -86,7 +86,7 @@ function VbsDecoder() {
                          return;
                 }
             } else if ((typeof kk) != kind) {
-                this.dec.err = "Invalid Unmarshal Error: " + kk;
+                this.dec.err = "Invalid Unmarshal, the Type key Error : " + kk;
                 return;
             }
             ms[kk] = v;
@@ -151,7 +151,7 @@ function VbsDecoder() {
                 x = null;
                 break;
            default:
-                this.dec.err = "vbs: Invalid vbs-encoded bytes!";
+                this.dec.err = "vbs: Invalid type of vbs-encoded bytes!";
         }
         return x;
     }
@@ -164,7 +164,7 @@ function VbsDecoder() {
      this._getStr = function(n) {
         let str = "";
         if (n > this._left()) {
-            this.dec.err = "vbs: Invalid vbs-encoded bytes";
+            this.dec.err = "vbs: Invalid vbs string encoded bytes";
             return;
         }
         let startPos = this.dec.hStart;
@@ -181,7 +181,7 @@ function VbsDecoder() {
      */
     this._getBlob = function(num) {
         if (num > this._left()) {
-            this.dec.err = "vbs: Invalid vbs-encoded bytes";
+            this.dec.err = "vbs: Invalid vbs blob encoded bytes";
             return;
         }
         let x = new Uint8Array(this.dec.encodeData.buffer, this.dec.hStart, num);
@@ -217,7 +217,7 @@ function VbsDecoder() {
             if (this.head.kind != kind) {
                 this.dec.err = "Mismatched Kind Error { Expect: "+kind+" ,Got: "+this.head.kind+" }";
             } else if (!permitDescriptor && this.head.descriptor != 0) {
-                this.dec.err = "Error: Invalid vbs-encoded bytes";
+                this.dec.err = "Error: Invalid vbs-encoded bytes, descriptor cannot be in the middle";
             }
         }
     }
@@ -264,14 +264,14 @@ function VbsDecoder() {
                            if ((descriptor&kindConst.VBS_SPECIAL_DESCRIPTOR) == 0) { // spec
                               descriptor |= kindConst.VBS_SPECIAL_DESCRIPTOR;
                            } else {
-                              this.dec.err = "Error: Invalid vbs-encoded bytes";
+                              this.dec.err = "Error: Invalid vbs descriptor encoded bytes";
                               return;
                            }
                         } else {
                             if ((descriptor & kindConst.VBS_DESCRIPTOR_MAX) == 0) {
                                descriptor |= (num >>> 0);
                             } else {
-                                this.dec.err = "Error: Invalid vbs-encoded bytes";
+                                this.dec.err = "Error: Invalid vbs descriptor encoded bytes";
                                 return;
                             }
                         }
