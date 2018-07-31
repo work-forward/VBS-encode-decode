@@ -151,7 +151,7 @@ function VbsDecoder() {
                 x = null;
                 break;
            default:
-                this.dec.err = "Invalid Vbs Error!";
+                this.dec.err = "vbs: Invalid vbs-encoded bytes!";
         }
         return x;
     }
@@ -164,7 +164,7 @@ function VbsDecoder() {
      this._getStr = function(n) {
         let str = "";
         if (n > this._left()) {
-            this.dec.err = "Invalid Vbs Error";
+            this.dec.err = "vbs: Invalid vbs-encoded bytes";
             return;
         }
         let startPos = this.dec.hStart;
@@ -181,7 +181,7 @@ function VbsDecoder() {
      */
     this._getBlob = function(num) {
         if (num > this._left()) {
-            this.dec.err = "Invalid Vbs Error";
+            this.dec.err = "vbs: Invalid vbs-encoded bytes";
             return;
         }
         let x = new Uint8Array(this.dec.encodeData.buffer, this.dec.hStart, num);
